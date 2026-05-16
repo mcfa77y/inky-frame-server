@@ -7,7 +7,8 @@ import * as puppeteer from 'puppeteer';
 @Injectable()
 export class WeatherService {
   private readonly apiKey: string | undefined;
-  private readonly baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  private readonly currentUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  private readonly forecastUrl = 'https://api.openweathermap.org/data/2.5/forecast';
   private readonly frontendUrl: string;
 
   constructor(
@@ -18,7 +19,7 @@ export class WeatherService {
     this.frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
   }
 
-  async captureImage(zip: string = '94110'): Promise<Buffer> {
+  async captureImage(zip: string = '94110', view: string = 'current'): Promise<Buffer> {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -29,7 +30,7 @@ export class WeatherService {
       await page.setViewport({ width: 800, height: 480 });
       
       // Navigate to the snapshot route on the frontend
-      const url = `${this.frontendUrl}/snapshot?zip=${zip}`;
+      const url = `${this.frontendUrl}/snapshot?zip=${zip}&view=${view}`;
       await page.goto(url, { waitUntil: 'networkidle0' });
 
       // Wait for the widget to be visible (it has a specific width/height)
@@ -49,22 +50,23 @@ export class WeatherService {
     }
   }
 
-  async getWeather(zip: string = '94110') {
+  async getWeather(zip: string = '94110', view: string = 'current') {
     if (!this.apiKey) {
-      // For demonstration if no API key is provided, we can return a mock or throw
-      // In a real app, you'd want a valid key.
       return {
         zip,
-        weather: 'Cloudy (Mock)',
-        temp: 65,
-        unit: 'F',
+        weather: [{ main: 'Cloudy (Mock)', description: 'broken clouds', icon: '04d' }],
+        main: { temp: 65, feels_like: 63, humidity: 45, pressure: 1012, temp_max: 70, temp_min: 60 },
+        wind: { speed: 5 },
+        name: 'San Francisco (Mock)',
+        view,
         message: 'Please provide OPENWEATHER_API_KEY in .env for real data',
       };
     }
 
     try {
+      const url = view === 'current' ? this.currentUrl : this.forecastUrl;
       const response = await firstValueFrom(
-        this.httpService.get(this.baseUrl, {
+        this.httpService.get(url, {
           params: {
             zip: `${zip},us`,
             appid: this.apiKey,
@@ -72,8 +74,11 @@ export class WeatherService {
           },
         }),
       );
-      console.log(`[weather] ${JSON.stringify(response.data, null, 2)}`)
-      return response.data;
+
+      return {
+        ...response.data,
+        view,
+      };
     } catch (error) {
       throw new Error(`Failed to fetch weather: ${error.message}`);
     }

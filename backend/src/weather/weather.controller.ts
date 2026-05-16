@@ -7,14 +7,21 @@ export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
   @Get()
-  async getWeather(@Query('zip') zip?: string) {
-    return this.weatherService.getWeather(zip);
+  async getWeather(
+    @Query('zip') zip?: string,
+    @Query('view') view: string = 'current',
+  ) {
+    return this.weatherService.getWeather(zip, view);
   }
 
   @Get('image')
   @Header('Content-Type', 'image/png')
-  async getWeatherImage(@Query('zip') zip: string, @Res() res: Response) {
-    const buffer = await this.weatherService.captureImage(zip);
+  async getWeatherImage(
+    @Query('zip') zip: string,
+    @Query('view') view: string = 'current',
+    @Res() res: Response,
+  ) {
+    const buffer = await this.weatherService.captureImage(zip, view);
     res.end(buffer);
   }
 }

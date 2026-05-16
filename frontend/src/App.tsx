@@ -12,12 +12,13 @@ export function App() {
   const queryParams = new URLSearchParams(window.location.search);
   const isSnapshot = window.location.pathname === "/snapshot";
   const snapshotZip = queryParams.get("zip") || "94110";
+  const snapshotView = queryParams.get("view") || "current";
 
-  const fetchWeather = async (zip: string) => {
+  const fetchWeather = async (zip: string, view: string = "current") => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3001/weather?zip=${zip}`);
+      const response = await fetch(`http://localhost:3001/weather?zip=${zip}&view=${view}`);
       if (!response.ok) throw new Error('Failed to fetch weather');
       const data = await response.json();
       setWeatherData(data);
@@ -30,7 +31,7 @@ export function App() {
 
   // Initial fetch
   useEffect(() => {
-    fetchWeather(isSnapshot ? snapshotZip : '94110');
+    fetchWeather(isSnapshot ? snapshotZip : '94110', isSnapshot ? snapshotView : 'current');
   }, []);
 
   if (isSnapshot) {
