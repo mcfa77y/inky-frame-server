@@ -28,7 +28,7 @@ export class WeatherService {
     try {
       const page = await browser.newPage();
       await page.setViewport({ width: 800, height: 480 });
-      
+
       // Navigate to the snapshot route on the frontend
       const url = `${this.frontendUrl}/snapshot?zip=${zip}&view=${view}`;
       await page.goto(url, { waitUntil: 'networkidle0' });
@@ -40,7 +40,7 @@ export class WeatherService {
       await new Promise(r => setTimeout(r, 500));
 
       const screenshot = await page.screenshot({
-        type: 'png',
+        type: 'jpeg',
         clip: { x: 0, y: 0, width: 800, height: 480 }
       });
 
@@ -55,8 +55,8 @@ export class WeatherService {
       return {
         zip,
         weather: [{ main: 'Cloudy (Mock)', description: 'broken clouds', icon: '04d' }],
-        main: { temp: 65, feels_like: 63, humidity: 45, pressure: 1012, temp_max: 70, temp_min: 60 },
-        wind: { speed: 5 },
+        main: { temp: 18, feels_like: 17, humidity: 45, pressure: 1012, temp_max: 21, temp_min: 15 },
+        wind: { speed: 2.5 },
         name: 'San Francisco (Mock)',
         view,
         message: 'Please provide OPENWEATHER_API_KEY in .env for real data',
@@ -70,7 +70,7 @@ export class WeatherService {
           params: {
             zip: `${zip},us`,
             appid: this.apiKey,
-            units: 'imperial',
+            units: 'metric',
           },
         }),
       );

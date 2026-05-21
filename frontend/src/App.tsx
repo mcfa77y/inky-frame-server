@@ -18,7 +18,7 @@ export function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3001/weather?zip=${zip}&view=${view}`);
+      const response = await fetch(`http://localhost:3011/weather?zip=${zip}&view=${view}`);
       if (!response.ok) throw new Error('Failed to fetch weather');
       const data = await response.json();
       setWeatherData(data);
@@ -55,7 +55,7 @@ export function App() {
 
         <main className="flex flex-col items-center">
           <WeatherWidget data={weatherData} loading={loading} error={error} />
-          
+
           <div className="mt-8 text-[10px] opacity-20 uppercase tracking-[0.2em] font-bold">
             800 x 480 Display Optimized
           </div>

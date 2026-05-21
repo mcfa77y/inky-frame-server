@@ -66,7 +66,7 @@ function CurrentView({ data }: { data: any }) {
       <div className="grid grid-cols-4 gap-4 mt-12 relative z-10">
         <StatModule label="FEELS LIKE" value={`${Math.round(data.main?.feels_like)}°`} subText="Similar to the actual temperature." />
         <StatModule label="HUMIDITY" value={`${data.main?.humidity}%`} subText={`The dew point is ${Math.round(data.main?.temp - 5)}° right now.`} />
-        <StatModule label="WIND" value={`${Math.round(data.wind?.speed)}`} unit="MPH" subText="Gusts up to 15 mph." />
+        <StatModule label="WIND" value={`${Math.round(data.wind?.speed)}`} unit="m/s" subText="Moderate breeze expected today." />
         <StatModule label="PRESSURE" value={data.main?.pressure} unit="hPa" subText="Steady in the last hour." />
       </div>
 
@@ -109,7 +109,7 @@ function TodayView({ data }: { data: any }) {
       <div className="grid grid-cols-4 gap-4">
         <StatModule label="FEELS LIKE" value={`${Math.round(current?.main?.feels_like)}°`} subText="Morning average." />
         <StatModule label="HUMIDITY" value={`${current?.main?.humidity}%`} subText="Next 24 hours." />
-        <StatModule label="WIND" value={`${Math.round(current?.wind?.speed)}`} unit="MPH" subText="Max expected." />
+        <StatModule label="WIND" value={`${Math.round(current?.wind?.speed)}`} unit="m/s" subText="Max expected." />
         <StatModule label="PRECIP" value={`${Math.round(current?.pop * 100)}%`} subText="Peak chance." />
       </div>
 
