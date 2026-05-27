@@ -14,7 +14,7 @@ const server = serve({
     // Echo console logs from the browser to the server
     console: true,
   },
-  port: 3010
+  port: process.env.PORT || 3010
 });
 
 console.log(`🚀 Frontend server running at ${server.url}`);

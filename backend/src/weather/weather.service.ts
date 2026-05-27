@@ -18,8 +18,9 @@ export class WeatherService {
     private readonly configService: ConfigService,
   ) {
     this.apiKey = this.configService.get<string>('OPENWEATHER_API_KEY');
+    const frontendPort = this.configService.get<string>('FRONTEND_PORT') || '3010';
     this.frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3010';
+      this.configService.get<string>('FRONTEND_URL') || `http://localhost:${frontendPort}`;
   }
 
   async captureImage(
