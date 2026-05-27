@@ -4,7 +4,7 @@ import { WeatherService } from './weather.service';
 
 @Controller('weather')
 export class WeatherController {
-  constructor(private readonly weatherService: WeatherService) {}
+  constructor(private readonly weatherService: WeatherService) { }
 
   @Get()
   async getWeather(
@@ -21,6 +21,8 @@ export class WeatherController {
     @Query('view') view: string = 'current',
     @Res() res: Response,
   ) {
+    console.log(`zip: ${zip}`);
+    console.log(`view: ${view}`);
     const buffer = await this.weatherService.captureImage(zip, view);
     res.end(buffer);
   }

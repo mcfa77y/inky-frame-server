@@ -7,8 +7,10 @@ import * as puppeteer from 'puppeteer';
 @Injectable()
 export class WeatherService {
   private readonly apiKey: string | undefined;
-  private readonly currentUrl = 'https://api.openweathermap.org/data/2.5/weather';
-  private readonly forecastUrl = 'https://api.openweathermap.org/data/2.5/forecast';
+  private readonly currentUrl =
+    'https://api.openweathermap.org/data/2.5/weather';
+  private readonly forecastUrl =
+    'https://api.openweathermap.org/data/2.5/forecast';
   private readonly frontendUrl: string;
 
   constructor(
@@ -16,10 +18,14 @@ export class WeatherService {
     private readonly configService: ConfigService,
   ) {
     this.apiKey = this.configService.get<string>('OPENWEATHER_API_KEY');
-    this.frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    this.frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3010';
   }
 
-  async captureImage(zip: string = '94110', view: string = 'current'): Promise<Buffer> {
+  async captureImage(
+    zip: string = '94110',
+    view: string = 'current',
+  ): Promise<Buffer> {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -37,11 +43,11 @@ export class WeatherService {
       await page.waitForSelector('.w-\\[800px\\]');
 
       // Add a small delay for animations or gradients to settle
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       const screenshot = await page.screenshot({
         type: 'jpeg',
-        clip: { x: 0, y: 0, width: 800, height: 480 }
+        clip: { x: 0, y: 0, width: 800, height: 480 },
       });
 
       return screenshot as Buffer;
@@ -54,9 +60,18 @@ export class WeatherService {
     if (!this.apiKey) {
       return {
         zip,
-        weather: [{ main: 'Cloudy (Mock)', description: 'broken clouds', icon: '04d' }],
-        main: { temp: 18, feels_like: 17, humidity: 45, pressure: 1012, temp_max: 21, temp_min: 15 },
-        wind: { speed: 2.5 },
+        weather: [
+          { main: 'Cloudy (Mock)', description: 'broken clouds', icon: '04d' },
+        ],
+        main: {
+          temp: 65,
+          feels_like: 63,
+          humidity: 45,
+          pressure: 1012,
+          temp_max: 70,
+          temp_min: 60,
+        },
+        wind: { speed: 5 },
         name: 'San Francisco (Mock)',
         view,
         message: 'Please provide OPENWEATHER_API_KEY in .env for real data',
