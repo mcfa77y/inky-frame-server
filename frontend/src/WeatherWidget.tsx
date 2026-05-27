@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface WeatherWidgetProps {
   data: any;
@@ -33,6 +33,22 @@ export function WeatherWidget({ data, loading, error }: WeatherWidgetProps) {
 }
 
 function CurrentView({ data }: { data: any }) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 10000); // Update every 10 seconds to keep it fairly fresh without over-rendering
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedTime = currentTime.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
   const condition = data.weather?.[0]?.main?.toLowerCase() || 'clear';
   const gradient = getGradient(condition);
 
@@ -42,7 +58,10 @@ function CurrentView({ data }: { data: any }) {
 
       <div className="flex justify-between items-start mb-8 relative z-10">
         <div>
-          <h1 className="text-4xl font-semibold tracking-tight">{data.name}</h1>
+          <div className="flex items-baseline gap-4">
+            <h1 className="text-4xl font-semibold tracking-tight">{data.name}</h1>
+            <span className="text-2xl font-light opacity-80">{formattedTime}</span>
+          </div>
           <p className="text-7xl font-light mt-2">{Math.round(data.main?.temp ?? data.temp)}°</p>
           <p className="text-xl opacity-90 font-medium capitalize mt-1">
             {data.weather?.[0]?.description}
