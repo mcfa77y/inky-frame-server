@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { ZipInput } from "./ZipInput";
 import { WeatherWidget } from "./WeatherWidget";
+import { ThemeEditorWidget } from "./ThemeEditorWidget";
 import "./index.css";
 
 export function App() {
   const [weatherData, setWeatherData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [themeConfig, setThemeConfig] = useState<{ gradient: string | null; noise: number }>({
+    gradient: null,
+    noise: 0.2
+  });
 
   // Simple routing for snapshotting
   const queryParams = new URLSearchParams(window.location.search);
@@ -37,7 +42,13 @@ export function App() {
   if (isSnapshot) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
-        <WeatherWidget data={weatherData} loading={loading} error={error} />
+        <WeatherWidget 
+          data={weatherData} 
+          loading={loading} 
+          error={error} 
+          themeOverride={themeConfig.gradient || undefined} 
+          noiseLevel={themeConfig.noise}
+        />
       </div>
     );
   }
@@ -53,8 +64,19 @@ export function App() {
           <ZipInput onSearch={fetchWeather} loading={loading} />
         </header>
 
-        <main className="flex flex-col items-center">
-          <WeatherWidget data={weatherData} loading={loading} error={error} />
+        <main className="flex flex-col items-center gap-12">
+          <WeatherWidget 
+            data={weatherData} 
+            loading={loading} 
+            error={error} 
+            themeOverride={themeConfig.gradient || undefined} 
+            noiseLevel={themeConfig.noise}
+          />
+
+          <div className="w-full flex flex-col items-center gap-6">
+            <h2 className="text-xl font-semibold opacity-80">Theme Editor</h2>
+            <ThemeEditorWidget onThemeChange={setThemeConfig} />
+          </div>
 
           <div className="mt-8 text-[10px] opacity-20 uppercase tracking-[0.2em] font-bold">
             800 x 480 Display Optimized

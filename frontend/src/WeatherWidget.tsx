@@ -4,9 +4,11 @@ interface WeatherWidgetProps {
   data: any;
   loading: boolean;
   error: string | null;
+  themeOverride?: string;
+  noiseLevel?: number;
 }
 
-export function WeatherWidget({ data, loading, error }: WeatherWidgetProps) {
+export function WeatherWidget({ data, loading, error, themeOverride, noiseLevel = 0.2 }: WeatherWidgetProps) {
   if (loading) {
     return (
       <div className="w-[800px] h-[480px] bg-blue-500/20 rounded-[40px] flex items-center justify-center animate-pulse border border-white/10">
@@ -27,12 +29,25 @@ export function WeatherWidget({ data, loading, error }: WeatherWidgetProps) {
 
   const view = data.view || 'current';
 
-  if (view === 'today') return <TodayView data={data} />;
-  if (view === 'forecast') return <ForecastView data={data} />;
-  return <CurrentView data={data} />;
+  if (view === 'today') return <TodayView data={data} themeOverride={themeOverride} noiseLevel={noiseLevel} />;
+  if (view === 'forecast') return <ForecastView data={data} themeOverride={themeOverride} noiseLevel={noiseLevel} />;
+  return <CurrentView data={data} themeOverride={themeOverride} noiseLevel={noiseLevel} />;
 }
 
-function CurrentView({ data }: { data: any }) {
+function GrainOverlay({ opacity }: { opacity: number }) {
+  if (opacity <= 0) return null;
+  return (
+    <div 
+      className="absolute inset-0 pointer-events-none mix-blend-overlay z-0"
+      style={{ 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        opacity: opacity
+      }}
+    ></div>
+  );
+}
+
+function CurrentView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOverride?: string, noiseLevel?: number }) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -53,7 +68,11 @@ function CurrentView({ data }: { data: any }) {
   const gradient = getGradient(condition);
 
   return (
-    <div className={`w-[800px] h-[480px] bg-gradient-to-br ${gradient} rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden border border-white/20 font-sans`}>
+    <div 
+      className={`w-[800px] h-[480px] ${!themeOverride ? `bg-gradient-to-br ${gradient}` : ''} rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden border border-white/20 font-sans`}
+      style={themeOverride ? { background: themeOverride } : {}}
+    >
+      <GrainOverlay opacity={noiseLevel} />
       <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
 
       <div className="flex justify-between items-start mb-8 relative z-10">
@@ -94,7 +113,7 @@ function CurrentView({ data }: { data: any }) {
   );
 }
 
-function TodayView({ data }: { data: any }) {
+function TodayView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOverride?: string, noiseLevel?: number }) {
   // OWM forecast returns 3-hour steps. Let's take the first 8 (24 hours)
   const hourly = data.list?.slice(0, 8) || [];
   const current = hourly[0];
@@ -102,12 +121,16 @@ function TodayView({ data }: { data: any }) {
   const gradient = getGradient(condition);
 
   return (
-    <div className={`w-[800px] h-[480px] bg-gradient-to-br ${gradient} rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden border border-white/20 font-sans`}>
+    <div 
+      className={`w-[800px] h-[480px] ${!themeOverride ? `bg-gradient-to-br ${gradient}` : ''} rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden border border-white/20 font-sans`}
+      style={themeOverride ? { background: themeOverride } : {}}
+    >
+      <GrainOverlay opacity={noiseLevel} />
       <h1 className="text-3xl font-semibold mb-6">{data.city?.name || 'Today'}'s Forecast</h1>
 
       <div className="grid grid-cols-8 gap-2 h-64 mb-6">
         {hourly.map((item: any, i: number) => (
-          <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-2 flex flex-col items-center justify-between border border-white/10">
+          <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-2 flex flex-col items-center justify-between border border-white/10 relative z-10">
             <p className="text-[10px] font-bold opacity-60">
               {new Date(item.dt * 1000).toLocaleTimeString([], { hour: 'numeric' })}
             </p>
@@ -125,7 +148,7 @@ function TodayView({ data }: { data: any }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4 relative z-10">
         <StatModule label="FEELS LIKE" value={`${Math.round(current?.main?.feels_like)}°`} subText="Morning average." />
         <StatModule label="HUMIDITY" value={`${current?.main?.humidity}%`} subText="Next 24 hours." />
         <StatModule label="WIND" value={`${Math.round(current?.wind?.speed)}`} unit="m/s" subText="Max expected." />
@@ -137,7 +160,7 @@ function TodayView({ data }: { data: any }) {
   );
 }
 
-function ForecastView({ data }: { data: any }) {
+function ForecastView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOverride?: string, noiseLevel?: number }) {
   // Group forecast by day. OWM returns 40 items (5 days, every 3 hours)
   const daily = data.list ? data.list.filter((_: any, i: number) => i % 8 === 0).slice(0, 5) : [];
   const current = daily[0];
@@ -145,10 +168,14 @@ function ForecastView({ data }: { data: any }) {
   const gradient = getGradient(condition);
 
   return (
-    <div className={`w-[800px] h-[480px] bg-gradient-to-br ${gradient} rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden border border-white/20 font-sans`}>
-      <h1 className="text-3xl font-semibold mb-8">{data.city?.name || '5-Day'} Forecast</h1>
+    <div 
+      className={`w-[800px] h-[480px] ${!themeOverride ? `bg-gradient-to-br ${gradient}` : ''} rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden border border-white/20 font-sans`}
+      style={themeOverride ? { background: themeOverride } : {}}
+    >
+      <GrainOverlay opacity={noiseLevel} />
+      <h1 className="text-3xl font-semibold mb-8 relative z-10">{data.city?.name || '5-Day'} Forecast</h1>
       
-      <div className="space-y-3">
+      <div className="space-y-3 relative z-10">
         {daily.map((day: any, i: number) => (
           <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-4 flex items-center justify-between border border-white/10">
             <div className="w-24">
