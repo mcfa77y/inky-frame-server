@@ -8,16 +8,19 @@ export function App() {
   const [weatherData, setWeatherData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [themeConfig, setThemeConfig] = useState<{ gradient: string | null; noise: number }>({
-    gradient: null,
-    noise: 0.2
-  });
 
   // Simple routing for snapshotting
   const queryParams = new URLSearchParams(window.location.search);
   const isSnapshot = window.location.pathname === "/snapshot";
   const snapshotZip = queryParams.get("zip") || "94110";
   const snapshotView = queryParams.get("view") || "current";
+  const snapshotGradient = queryParams.get("gradient");
+  const snapshotNoise = queryParams.get("noise") !== null ? parseFloat(queryParams.get("noise")!) : null;
+
+  const [themeConfig, setThemeConfig] = useState<{ gradient: string | null; noise: number }>({
+    gradient: isSnapshot ? snapshotGradient : null,
+    noise: isSnapshot && snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2
+  });
 
   const fetchWeather = async (zip: string, view: string = "current") => {
     setLoading(true);

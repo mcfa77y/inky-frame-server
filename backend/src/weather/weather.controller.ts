@@ -4,7 +4,7 @@ import { WeatherService } from './weather.service';
 
 @Controller('weather')
 export class WeatherController {
-  constructor(private readonly weatherService: WeatherService) { }
+  constructor(private readonly weatherService: WeatherService) {}
 
   @Get()
   async getWeather(
@@ -19,11 +19,21 @@ export class WeatherController {
   async getWeatherImage(
     @Query('zip') zip: string,
     @Query('view') view: string = 'current',
+    @Query('gradient') gradient?: string,
+    @Query('noise') noise?: string,
     @Res() res: Response,
   ) {
     console.log(`zip: ${zip}`);
     console.log(`view: ${view}`);
-    const buffer = await this.weatherService.captureImage(zip, view);
+    console.log(`gradient: ${gradient}`);
+    console.log(`noise: ${noise}`);
+    const noiseNum = noise !== undefined ? parseFloat(noise) : undefined;
+    const buffer = await this.weatherService.captureImage(
+      zip,
+      view,
+      gradient,
+      isNaN(noiseNum as number) ? undefined : noiseNum,
+    );
     res.end(buffer);
   }
 }

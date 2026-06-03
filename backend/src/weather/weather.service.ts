@@ -18,14 +18,18 @@ export class WeatherService {
     private readonly configService: ConfigService,
   ) {
     this.apiKey = this.configService.get<string>('OPENWEATHER_API_KEY');
-    const frontendPort = this.configService.get<string>('FRONTEND_PORT') || '3010';
+    const frontendPort =
+      this.configService.get<string>('FRONTEND_PORT') || '3010';
     this.frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || `http://localhost:${frontendPort}`;
+      this.configService.get<string>('FRONTEND_URL') ||
+      `http://localhost:${frontendPort}`;
   }
 
   async captureImage(
     zip: string = '94110',
     view: string = 'current',
+    gradient?: string,
+    noise?: number,
   ): Promise<Buffer> {
     const browser = await puppeteer.launch({
       headless: true,
@@ -37,7 +41,13 @@ export class WeatherService {
       await page.setViewport({ width: 800, height: 480 });
 
       // Navigate to the snapshot route on the frontend
-      const url = `${this.frontendUrl}/snapshot?zip=${zip}&view=${view}`;
+      let url = `${this.frontendUrl}/snapshot?zip=${zip}&view=${view}`;
+      if (gradient) {
+        url += `&gradient=${encodeURIComponent(gradient)}`;
+      }
+      if (noise !== undefined) {
+        url += `&noise=${noise}`;
+      }
       await page.goto(url, { waitUntil: 'networkidle0' });
 
       // Wait for the widget to be visible (it has a specific width/height)

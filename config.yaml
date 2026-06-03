@@ -2,6 +2,8 @@ tunnel: fa425284-66cf-48bb-b4e3-49528bbac182
 credentials-file: /Users/joe/.cloudflared/fa425284-66cf-48bb-b4e3-49528bbac182.json
 
 ingress:
+  - hostname: inky.princess-donut.com
+    service: http://localhost:3010
   - hostname: inky-server.princess-donut.com
     service: http://localhost:3011
   - service: http_status:404
