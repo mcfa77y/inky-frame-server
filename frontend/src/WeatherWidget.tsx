@@ -15,7 +15,7 @@ function useThemeContrast(themeOverride?: string) {
         isLightBackground
       };
     }
-  } catch (e) {}
+  } catch (e) { }
   return { textColorClass: 'text-white text-shadow-md', isLightBackground: false };
 }
 
@@ -25,9 +25,23 @@ interface WeatherWidgetProps {
   error: string | null;
   themeOverride?: string;
   noiseLevel?: number;
+  shadowX?: number;
+  shadowY?: number;
+  shadowBlur?: number;
+  shadowOpacity?: number;
 }
 
-export function WeatherWidget({ data, loading, error, themeOverride, noiseLevel = 0.2 }: WeatherWidgetProps) {
+export function WeatherWidget({
+  data,
+  loading,
+  error,
+  themeOverride,
+  noiseLevel = 0.2,
+  shadowX,
+  shadowY,
+  shadowBlur,
+  shadowOpacity
+}: WeatherWidgetProps) {
   if (loading) {
     return (
       <div className="w-[800px] h-[480px] bg-blue-500/20 rounded-[40px] flex items-center justify-center animate-pulse border border-white/10">
@@ -48,17 +62,51 @@ export function WeatherWidget({ data, loading, error, themeOverride, noiseLevel 
 
   const view = data.view || 'current';
 
-  if (view === 'today') return <TodayView data={data} themeOverride={themeOverride} noiseLevel={noiseLevel} />;
-  if (view === 'forecast') return <ForecastView data={data} themeOverride={themeOverride} noiseLevel={noiseLevel} />;
-  return <CurrentView data={data} themeOverride={themeOverride} noiseLevel={noiseLevel} />;
+  if (view === 'today') {
+    return (
+      <TodayView 
+        data={data} 
+        themeOverride={themeOverride} 
+        noiseLevel={noiseLevel} 
+        shadowX={shadowX}
+        shadowY={shadowY}
+        shadowBlur={shadowBlur}
+        shadowOpacity={shadowOpacity}
+      />
+    );
+  }
+  if (view === 'forecast') {
+    return (
+      <ForecastView 
+        data={data} 
+        themeOverride={themeOverride} 
+        noiseLevel={noiseLevel} 
+        shadowX={shadowX}
+        shadowY={shadowY}
+        shadowBlur={shadowBlur}
+        shadowOpacity={shadowOpacity}
+      />
+    );
+  }
+  return (
+    <CurrentView 
+      data={data} 
+      themeOverride={themeOverride} 
+      noiseLevel={noiseLevel} 
+      shadowX={shadowX}
+      shadowY={shadowY}
+      shadowBlur={shadowBlur}
+      shadowOpacity={shadowOpacity}
+    />
+  );
 }
 
 function GrainOverlay({ opacity }: { opacity: number }) {
   if (opacity <= 0) return null;
   return (
-    <div 
+    <div
       className="absolute inset-0 pointer-events-none mix-blend-overlay z-0"
-      style={{ 
+      style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         opacity: opacity
       }}
@@ -66,7 +114,23 @@ function GrainOverlay({ opacity }: { opacity: number }) {
   );
 }
 
-function CurrentView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOverride?: string, noiseLevel?: number }) {
+function CurrentView({
+  data,
+  themeOverride,
+  noiseLevel = 0,
+  shadowX,
+  shadowY,
+  shadowBlur,
+  shadowOpacity
+}: {
+  data: any;
+  themeOverride?: string;
+  noiseLevel?: number;
+  shadowX?: number;
+  shadowY?: number;
+  shadowBlur?: number;
+  shadowOpacity?: number;
+}) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { textColorClass, isLightBackground } = useThemeContrast(themeOverride);
 
@@ -87,8 +151,14 @@ function CurrentView({ data, themeOverride, noiseLevel = 0 }: { data: any, theme
   const condition = data.weather?.[0]?.main?.toLowerCase() || 'clear';
   const gradient = getGradient(condition);
 
+  const textShadowStyle = !isLightBackground
+    ? {
+        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`
+      }
+    : {};
+
   return (
-    <div 
+    <div
       className={`w-[800px] h-[480px] ${!themeOverride ? `bg-gradient-to-br ${gradient}` : ''} rounded-[40px] p-10 ${textColorClass} shadow-2xl relative overflow-hidden border border-white/20 font-sans transition-all duration-300`}
       style={themeOverride ? { background: themeOverride } : {}}
     >
@@ -98,21 +168,21 @@ function CurrentView({ data, themeOverride, noiseLevel = 0 }: { data: any, theme
       <div className="flex justify-between items-start mb-8 relative z-10">
         <div>
           <div className="flex items-baseline gap-4">
-            <h1 className="text-4xl font-extrabold tracking-tight">{data.name}</h1>
-            <span className="text-2xl font-semibold opacity-80">{formattedTime}</span>
+            <h1 className="text-4xl font-extrabold tracking-tight" style={textShadowStyle}>{data.name}</h1>
+            <span className="text-2xl font-semibold opacity-80" style={textShadowStyle}>{formattedTime}</span>
           </div>
-          <p className="text-7xl font-black tracking-tighter mt-2">{Math.round(data.main?.temp ?? data.temp)}°</p>
-          <p className="text-xl opacity-90 font-bold capitalize mt-1">
+          <p className="text-7xl font-black tracking-tighter mt-2" style={textShadowStyle}>{Math.round(data.main?.temp ?? data.temp)}°</p>
+          <p className="text-xl opacity-90 font-bold capitalize mt-1" style={textShadowStyle}>
             {data.weather?.[0]?.description}
           </p>
-          <div className="flex gap-4 mt-2 opacity-80 font-bold">
+          <div className="flex gap-4 mt-2 opacity-80 font-bold" style={textShadowStyle}>
             <span>H:{Math.round(data.main?.temp_max)}°</span>
             <span>L:{Math.round(data.main?.temp_min)}°</span>
           </div>
         </div>
         <div className="text-right">
           {data.weather?.[0]?.icon && (
-            <img 
+            <img
               src={`https://openweathermap.org/img/wn/${data.weather[0].icon}@4x.png`}
               alt="Weather Icon"
               className="w-40 h-40 mt-[-20px]"
@@ -133,7 +203,23 @@ function CurrentView({ data, themeOverride, noiseLevel = 0 }: { data: any, theme
   );
 }
 
-function TodayView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOverride?: string, noiseLevel?: number }) {
+function TodayView({
+  data,
+  themeOverride,
+  noiseLevel = 0,
+  shadowX,
+  shadowY,
+  shadowBlur,
+  shadowOpacity
+}: {
+  data: any;
+  themeOverride?: string;
+  noiseLevel?: number;
+  shadowX?: number;
+  shadowY?: number;
+  shadowBlur?: number;
+  shadowOpacity?: number;
+}) {
   // OWM forecast returns 3-hour steps. Let's take the first 8 (24 hours)
   const hourly = data.list?.slice(0, 8) || [];
   const current = hourly[0];
@@ -141,19 +227,25 @@ function TodayView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOv
   const gradient = getGradient(condition);
   const { textColorClass, isLightBackground } = useThemeContrast(themeOverride);
 
-  const itemBgClass = isLightBackground 
-    ? 'bg-black/5 border-black/10 text-slate-800' 
+  const itemBgClass = isLightBackground
+    ? 'bg-black/5 border-black/10 text-slate-800'
     : 'bg-white/10 border-white/10 text-white';
   const progressTrackClass = isLightBackground ? 'bg-slate-200' : 'bg-white/20';
   const progressBarClass = isLightBackground ? 'bg-slate-700' : 'bg-white';
 
+  const textShadowStyle = !isLightBackground
+    ? {
+        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`
+      }
+    : {};
+
   return (
-    <div 
+    <div
       className={`w-[800px] h-[480px] ${!themeOverride ? `bg-gradient-to-br ${gradient}` : ''} rounded-[40px] p-8 ${textColorClass} shadow-2xl relative overflow-hidden border border-white/20 font-sans transition-all duration-300`}
       style={themeOverride ? { background: themeOverride } : {}}
     >
       <GrainOverlay opacity={noiseLevel} />
-      <h1 className="text-3xl font-extrabold mb-6 relative z-10">{data.city?.name || 'Today'}'s Forecast</h1>
+      <h1 className="text-3xl font-extrabold mb-6 relative z-10" style={textShadowStyle}>{data.city?.name || 'Today'}'s Forecast</h1>
 
       <div className="grid grid-cols-8 gap-2 h-64 mb-6">
         {hourly.map((item: any, i: number) => (
@@ -161,12 +253,12 @@ function TodayView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOv
             <p className="text-[10px] font-black opacity-60">
               {new Date(item.dt * 1000).toLocaleTimeString([], { hour: 'numeric' })}
             </p>
-            <img 
+            <img
               src={`https://openweathermap.org/img/wn/${item.weather[0].icon}.png`}
               alt="icon"
               className="w-10 h-10"
             />
-            <p className="text-lg font-black">{Math.round(item.main.temp)}°</p>
+            <p className="text-3xl font-black">{Math.round(item.main.temp)}°</p>
             <div className={`w-full ${progressTrackClass} h-1 rounded-full overflow-hidden mt-1`}>
               <div className={`${progressBarClass} h-full`} style={{ width: `${item.pop * 100}%` }}></div>
             </div>
@@ -187,7 +279,23 @@ function TodayView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOv
   );
 }
 
-function ForecastView({ data, themeOverride, noiseLevel = 0 }: { data: any, themeOverride?: string, noiseLevel?: number }) {
+function ForecastView({
+  data,
+  themeOverride,
+  noiseLevel = 0,
+  shadowX,
+  shadowY,
+  shadowBlur,
+  shadowOpacity
+}: {
+  data: any;
+  themeOverride?: string;
+  noiseLevel?: number;
+  shadowX?: number;
+  shadowY?: number;
+  shadowBlur?: number;
+  shadowOpacity?: number;
+}) {
   // Group forecast by day. OWM returns 40 items (5 days, every 3 hours)
   const daily = data.list ? data.list.filter((_: any, i: number) => i % 8 === 0).slice(0, 5) : [];
   const current = daily[0];
@@ -195,21 +303,27 @@ function ForecastView({ data, themeOverride, noiseLevel = 0 }: { data: any, them
   const gradient = getGradient(condition);
   const { textColorClass, isLightBackground } = useThemeContrast(themeOverride);
 
-  const itemBgClass = isLightBackground 
-    ? 'bg-black/5 border-black/10 text-slate-800' 
+  const itemBgClass = isLightBackground
+    ? 'bg-black/5 border-black/10 text-slate-800'
     : 'bg-white/10 border-white/10 text-white';
   const barTrackClass = isLightBackground ? 'bg-slate-200' : 'bg-white/20';
   const barFillClass = isLightBackground ? 'bg-slate-700' : 'bg-white';
   const labelOpacityClass = isLightBackground ? 'opacity-50' : 'opacity-60';
 
+  const textShadowStyle = !isLightBackground
+    ? {
+        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`
+      }
+    : {};
+
   return (
-    <div 
+    <div
       className={`w-[800px] h-[480px] ${!themeOverride ? `bg-gradient-to-br ${gradient}` : ''} rounded-[40px] p-8 ${textColorClass} shadow-2xl relative overflow-hidden border border-white/20 font-sans transition-all duration-300`}
       style={themeOverride ? { background: themeOverride } : {}}
     >
       <GrainOverlay opacity={noiseLevel} />
-      <h1 className="text-3xl font-extrabold mb-8 relative z-10">{data.city?.name || '5-Day'} Forecast</h1>
-      
+      <h1 className="text-3xl font-extrabold mb-8 relative z-10" style={textShadowStyle}>{data.city?.name || '5-Day'} Forecast</h1>
+
       <div className="space-y-3 relative z-10">
         {daily.map((day: any, i: number) => (
           <div key={i} className={`${itemBgClass} backdrop-blur-md rounded-2xl p-4 flex items-center justify-between border transition-all duration-300`}>
@@ -219,7 +333,7 @@ function ForecastView({ data, themeOverride, noiseLevel = 0 }: { data: any, them
               </p>
             </div>
             <div className="flex items-center gap-4 flex-1 justify-center">
-              <img 
+              <img
                 src={`https://openweathermap.org/img/wn/${day.weather[0].icon}.png`}
                 alt="icon"
                 className="w-10 h-10"
@@ -264,8 +378,8 @@ function MockWarning({ message }: { message: string }) {
 }
 
 function StatModule({ label, value, unit, subText, isLightBackground = false }: { label: string, value: any, unit?: string, subText: string, isLightBackground?: boolean }) {
-  const bgClass = isLightBackground 
-    ? 'bg-black/5 border-black/10 text-slate-800' 
+  const bgClass = isLightBackground
+    ? 'bg-black/5 border-black/10 text-slate-800'
     : 'bg-white/10 border-white/10 text-white';
   const labelOpacityClass = isLightBackground ? 'opacity-50' : 'opacity-60';
   const textOpacityClass = isLightBackground ? 'opacity-70' : 'opacity-80';

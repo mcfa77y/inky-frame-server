@@ -9,7 +9,14 @@ const getApiUrl = (path: string) => {
 };
 
 interface ThemeEditorWidgetProps {
-  onThemeChange: (config: { gradient: string | null; noise: number }) => void;
+  onThemeChange: (config: {
+    gradient: string | null;
+    noise: number;
+    shadowX?: number;
+    shadowY?: number;
+    shadowBlur?: number;
+    shadowOpacity?: number;
+  }) => void;
 }
 
 interface SavedTheme {
@@ -17,6 +24,10 @@ interface SavedTheme {
   name: string;
   gradient: string | null;
   noise: number;
+  shadow_x?: number;
+  shadow_y?: number;
+  shadow_blur?: number;
+  shadow_opacity?: number;
 }
 
 const PRESET_COLORS = [
@@ -46,6 +57,12 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
   const [themeName, setThemeName] = useState('');
   const [selectedThemeId, setSelectedThemeId] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Text shadow configuration states
+  const [shadowX, setShadowX] = useState<number>(0);
+  const [shadowY, setShadowY] = useState<number>(2);
+  const [shadowBlur, setShadowBlur] = useState<number>(4);
+  const [shadowOpacity, setShadowOpacity] = useState<number>(0.35);
   
   // Dragging state for the color wheel
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
@@ -93,8 +110,15 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
   }, [colors, isAuto]);
 
   useEffect(() => {
-    onThemeChange({ gradient: gradientString, noise: noiseLevel });
-  }, [gradientString, noiseLevel, onThemeChange]);
+    onThemeChange({
+      gradient: gradientString,
+      noise: noiseLevel,
+      shadowX,
+      shadowY,
+      shadowBlur,
+      shadowOpacity,
+    });
+  }, [gradientString, noiseLevel, shadowX, shadowY, shadowBlur, shadowOpacity, onThemeChange]);
 
   // Handle color wheel dragging
   useEffect(() => {
@@ -159,6 +183,10 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
           name: themeName,
           gradient: gradientString,
           noise: noiseLevel,
+          shadow_x: shadowX,
+          shadow_y: shadowY,
+          shadow_blur: shadowBlur,
+          shadow_opacity: shadowOpacity,
         }),
       });
 
@@ -186,6 +214,11 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
 
     const theme = savedThemes.find(t => t.id.toString() === id);
     if (theme) {
+      if (theme.shadow_x !== undefined) setShadowX(theme.shadow_x);
+      if (theme.shadow_y !== undefined) setShadowY(theme.shadow_y);
+      if (theme.shadow_blur !== undefined) setShadowBlur(theme.shadow_blur);
+      if (theme.shadow_opacity !== undefined) setShadowOpacity(theme.shadow_opacity);
+
       if (theme.gradient === null) {
         setIsAuto(true);
         setNoiseLevel(theme.noise);
@@ -327,6 +360,15 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
         <Slider label="Saturation" value={saturation} min={0} max={2} onChange={setSaturation} />
         <Slider label="Value" value={lightness} min={0} max={2} onChange={setLightness} />
         <Slider label="Noise" value={noiseLevel} min={0} max={1} onChange={setNoiseLevel} />
+      </div>
+
+      {/* Text Shadow Controls */}
+      <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-black/5">
+        <div className="text-[10px] font-bold opacity-40 uppercase tracking-tighter mb-1">Text Shadow Config</div>
+        <Slider label="Offset X" value={shadowX} min={-10} max={10} onChange={setShadowX} />
+        <Slider label="Offset Y" value={shadowY} min={-10} max={10} onChange={setShadowY} />
+        <Slider label="Blur" value={shadowBlur} min={0} max={20} onChange={setShadowBlur} />
+        <Slider label="Opacity" value={shadowOpacity} min={0} max={1} onChange={setShadowOpacity} />
       </div>
 
       {/* Save & Load Themes */}

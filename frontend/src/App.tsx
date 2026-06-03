@@ -24,9 +24,20 @@ export function App() {
   const snapshotGradient = queryParams.get("gradient");
   const snapshotNoise = queryParams.get("noise") !== null ? parseFloat(queryParams.get("noise")!) : null;
 
-  const [themeConfig, setThemeConfig] = useState<{ gradient: string | null; noise: number }>({
+  const [themeConfig, setThemeConfig] = useState<{
+    gradient: string | null;
+    noise: number;
+    shadowX?: number;
+    shadowY?: number;
+    shadowBlur?: number;
+    shadowOpacity?: number;
+  }>({
     gradient: isSnapshot ? snapshotGradient : null,
-    noise: isSnapshot && snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2
+    noise: isSnapshot && snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2,
+    shadowX: queryParams.get("shadowX") !== null ? parseInt(queryParams.get("shadowX")!) : undefined,
+    shadowY: queryParams.get("shadowY") !== null ? parseInt(queryParams.get("shadowY")!) : undefined,
+    shadowBlur: queryParams.get("shadowBlur") !== null ? parseInt(queryParams.get("shadowBlur")!) : undefined,
+    shadowOpacity: queryParams.get("shadowOpacity") !== null ? parseFloat(queryParams.get("shadowOpacity")!) : undefined,
   });
 
   const fetchWeather = async (zip: string, view: string = "current") => {
@@ -55,7 +66,11 @@ export function App() {
       if (snapshotGradient !== null || snapshotNoise !== null) {
         setThemeConfig({
           gradient: snapshotGradient,
-          noise: snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2
+          noise: snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2,
+          shadowX: queryParams.get("shadowX") !== null ? parseInt(queryParams.get("shadowX")!) : undefined,
+          shadowY: queryParams.get("shadowY") !== null ? parseInt(queryParams.get("shadowY")!) : undefined,
+          shadowBlur: queryParams.get("shadowBlur") !== null ? parseInt(queryParams.get("shadowBlur")!) : undefined,
+          shadowOpacity: queryParams.get("shadowOpacity") !== null ? parseFloat(queryParams.get("shadowOpacity")!) : undefined,
         });
         return;
       }
@@ -70,6 +85,10 @@ export function App() {
               setThemeConfig({
                 gradient: firstTheme.gradient,
                 noise: firstTheme.noise,
+                shadowX: firstTheme.shadow_x,
+                shadowY: firstTheme.shadow_y,
+                shadowBlur: firstTheme.shadow_blur,
+                shadowOpacity: firstTheme.shadow_opacity,
               });
             }
           }
@@ -90,6 +109,10 @@ export function App() {
           error={error} 
           themeOverride={themeConfig.gradient || undefined} 
           noiseLevel={themeConfig.noise}
+          shadowX={themeConfig.shadowX}
+          shadowY={themeConfig.shadowY}
+          shadowBlur={themeConfig.shadowBlur}
+          shadowOpacity={themeConfig.shadowOpacity}
         />
       </div>
     );
@@ -113,6 +136,10 @@ export function App() {
             error={error} 
             themeOverride={themeConfig.gradient || undefined} 
             noiseLevel={themeConfig.noise}
+            shadowX={themeConfig.shadowX}
+            shadowY={themeConfig.shadowY}
+            shadowBlur={themeConfig.shadowBlur}
+            shadowOpacity={themeConfig.shadowOpacity}
           />
 
           <div className="w-full flex flex-col items-center gap-6">
