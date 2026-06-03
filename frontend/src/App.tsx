@@ -49,6 +49,38 @@ export function App() {
     fetchWeather(isSnapshot ? snapshotZip : '94110', isSnapshot ? snapshotView : 'current');
   }, []);
 
+  // Load first saved theme for snapshots if no custom query overrides are provided
+  useEffect(() => {
+    if (isSnapshot) {
+      if (snapshotGradient !== null || snapshotNoise !== null) {
+        setThemeConfig({
+          gradient: snapshotGradient,
+          noise: snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2
+        });
+        return;
+      }
+
+      const loadFirstTheme = async () => {
+        try {
+          const response = await fetch(getApiUrl('/themes'));
+          if (response.ok) {
+            const themes = await response.json();
+            if (themes.length > 0) {
+              const firstTheme = themes[0];
+              setThemeConfig({
+                gradient: firstTheme.gradient,
+                noise: firstTheme.noise,
+              });
+            }
+          }
+        } catch (err) {
+          console.error('Failed to load first theme for snapshot:', err);
+        }
+      };
+      loadFirstTheme();
+    }
+  }, [isSnapshot, snapshotGradient, snapshotNoise]);
+
   if (isSnapshot) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
