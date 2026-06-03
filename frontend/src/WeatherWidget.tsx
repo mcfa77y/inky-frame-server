@@ -101,7 +101,7 @@ function CurrentView({ data, themeOverride, noiseLevel = 0 }: { data: any, theme
             <h1 className="text-4xl font-extrabold tracking-tight">{data.name}</h1>
             <span className="text-2xl font-semibold opacity-80">{formattedTime}</span>
           </div>
-          <p className="text-8xl font-black tracking-tighter mt-2">{Math.round(data.main?.temp ?? data.temp)}°</p>
+          <p className="text-7xl font-black tracking-tighter mt-2">{Math.round(data.main?.temp ?? data.temp)}°</p>
           <p className="text-xl opacity-90 font-bold capitalize mt-1">
             {data.weather?.[0]?.description}
           </p>
