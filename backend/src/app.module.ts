@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WeatherModule } from './weather/weather.module';
+import { ThemeModule } from './theme/theme.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { WeatherModule } from './weather/weather.module';
       },
     }),
     WeatherModule,
+    ThemeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

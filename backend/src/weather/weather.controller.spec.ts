@@ -40,10 +40,10 @@ describe('WeatherController', () => {
 
     await controller.getWeatherImage(
       '94110',
+      mockRes,
       'current',
       'linear-gradient(...)',
       '0.5',
-      mockRes,
     );
 
     expect(captureImageMock).toHaveBeenCalledWith(
@@ -64,10 +64,10 @@ describe('WeatherController', () => {
 
     await controller.getWeatherImage(
       '94110',
+      mockRes,
       'current',
       undefined,
       undefined,
-      mockRes,
     );
 
     expect(captureImageMock).toHaveBeenCalledWith(

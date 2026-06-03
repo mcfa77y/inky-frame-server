@@ -18,10 +18,10 @@ export class WeatherController {
   @Header('Content-Type', 'image/png')
   async getWeatherImage(
     @Query('zip') zip: string,
+    @Res() res: Response,
     @Query('view') view: string = 'current',
     @Query('gradient') gradient?: string,
     @Query('noise') noise?: string,
-    @Res() res: Response,
   ) {
     console.log(`zip: ${zip}`);
     console.log(`view: ${view}`);

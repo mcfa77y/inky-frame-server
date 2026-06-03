@@ -4,6 +4,13 @@ import { WeatherWidget } from "./WeatherWidget";
 import { ThemeEditorWidget } from "./ThemeEditorWidget";
 import "./index.css";
 
+const getApiUrl = (path: string) => {
+  if (window.location.hostname === 'inky.princess-donut.com') {
+    return `https://inky-server.princess-donut.com${path}`;
+  }
+  return `http://localhost:3011${path}`;
+};
+
 export function App() {
   const [weatherData, setWeatherData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +33,7 @@ export function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3011/weather?zip=${zip}&view=${view}`);
+      const response = await fetch(getApiUrl(`/weather?zip=${zip}&view=${view}`));
       if (!response.ok) throw new Error('Failed to fetch weather');
       const data = await response.json();
       setWeatherData(data);

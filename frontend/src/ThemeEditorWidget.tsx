@@ -1,8 +1,22 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import chroma from 'chroma-js';
 
+const getApiUrl = (path: string) => {
+  if (window.location.hostname === 'inky.princess-donut.com') {
+    return `https://inky-server.princess-donut.com${path}`;
+  }
+  return `http://localhost:3011${path}`;
+};
+
 interface ThemeEditorWidgetProps {
   onThemeChange: (config: { gradient: string | null; noise: number }) => void;
+}
+
+interface SavedTheme {
+  id: number;
+  name: string;
+  gradient: string | null;
+  noise: number;
 }
 
 const PRESET_COLORS = [
@@ -26,6 +40,12 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
   const [lightness, setLightness] = useState<number>(1.0); // 0 to 2
   const [noiseLevel, setNoiseLevel] = useState<number>(0.2); // 0 to 1
   const [isAuto, setIsAuto] = useState(false);
+  
+  // Theme persistence states
+  const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
+  const [themeName, setThemeName] = useState('');
+  const [selectedThemeId, setSelectedThemeId] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
   
   // Dragging state for the color wheel
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
@@ -109,6 +129,78 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
       window.removeEventListener('pointerup', handlePointerUp);
     };
   }, [draggingIndex]);
+
+  // Load saved themes on mount
+  useEffect(() => {
+    const fetchThemes = async () => {
+      try {
+        const response = await fetch(getApiUrl('/themes'));
+        if (response.ok) {
+          const data = await response.json();
+          setSavedThemes(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch themes:', err);
+      }
+    };
+    fetchThemes();
+  }, []);
+
+  const handleSaveTheme = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!themeName.trim()) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch(getApiUrl('/themes'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: themeName,
+          gradient: gradientString,
+          noise: noiseLevel,
+        }),
+      });
+
+      if (response.ok) {
+        const newTheme = await response.json();
+        // Update saved themes list, replacing if name matches (due to upsert)
+        setSavedThemes(prev => {
+          const filtered = prev.filter(t => t.name !== newTheme.name);
+          return [newTheme, ...filtered];
+        });
+        setSelectedThemeId(newTheme.id.toString());
+        setThemeName('');
+      }
+    } catch (err) {
+      console.error('Failed to save theme:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSelectTheme = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    setSelectedThemeId(id);
+    if (!id) return;
+
+    const theme = savedThemes.find(t => t.id.toString() === id);
+    if (theme) {
+      if (theme.gradient === null) {
+        setIsAuto(true);
+        setNoiseLevel(theme.noise);
+      } else {
+        setIsAuto(false);
+        setNoiseLevel(theme.noise);
+        const hexColors = theme.gradient.match(/#[A-Fa-f0-9]{6}\b/g) || [];
+        if (hexColors.length > 0) {
+          setBaseColor(hexColors[0]);
+          setCustomHue(null);
+          setColorCount(hexColors.length);
+        }
+      }
+    }
+  };
 
   return (
     <div className="w-[400px] bg-[#E8F3F2] rounded-[32px] p-6 shadow-xl border border-white/50 text-[#4A5568] font-sans">
@@ -235,6 +327,47 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
         <Slider label="Saturation" value={saturation} min={0} max={2} onChange={setSaturation} />
         <Slider label="Value" value={lightness} min={0} max={2} onChange={setLightness} />
         <Slider label="Noise" value={noiseLevel} min={0} max={1} onChange={setNoiseLevel} />
+      </div>
+
+      {/* Save & Load Themes */}
+      <div className="mt-6 pt-6 border-t border-black/10 flex flex-col gap-4">
+        {/* Load Theme */}
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Load Saved Theme</label>
+          <select
+            value={selectedThemeId}
+            onChange={handleSelectTheme}
+            className="w-full h-10 px-3 bg-white/40 border border-white/20 rounded-xl text-sm focus:outline-none focus:bg-white/70 transition-all text-[#4A5568]"
+          >
+            <option value="">-- Select Saved Theme --</option>
+            {savedThemes.map(theme => (
+              <option key={theme.id} value={theme.id}>
+                {theme.name} ({theme.gradient ? 'Custom' : 'Auto'})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Save Theme */}
+        <form onSubmit={handleSaveTheme} className="flex flex-col gap-1">
+          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Save Current Theme</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="e.g. Lavender Dusk"
+              value={themeName}
+              onChange={(e) => setThemeName(e.target.value)}
+              className="flex-1 h-10 px-3 bg-white/40 border border-white/20 rounded-xl text-sm focus:outline-none focus:bg-white/70 placeholder:text-gray-400 transition-all text-[#4A5568]"
+            />
+            <button
+              type="submit"
+              disabled={isSaving || !themeName.trim()}
+              className="px-4 h-10 bg-white/60 hover:bg-white active:scale-95 disabled:opacity-40 disabled:scale-100 font-medium text-sm rounded-xl shadow-sm transition-all text-[#4A5568]"
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
