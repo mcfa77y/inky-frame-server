@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import chroma from 'chroma-js';
 
 function useThemeContrast(themeOverride?: string) {
-  if (!themeOverride) return { textColorClass: 'text-white drop-shadow-md', isLightBackground: false };
+  if (!themeOverride) return { textColorClass: 'text-white text-shadow-md', isLightBackground: false };
   try {
     const hexColors = themeOverride.match(/#[A-Fa-f0-9]{6}\b/g);
     if (hexColors && hexColors.length > 0) {
@@ -11,12 +11,12 @@ function useThemeContrast(themeOverride?: string) {
       const avgLum = (lum1 + lum2) / 2;
       const isLightBackground = avgLum > 0.55; // Slightly higher threshold to prefer light text unless quite bright
       return {
-        textColorClass: isLightBackground ? 'text-slate-900 drop-shadow-none' : 'text-white drop-shadow-md',
+        textColorClass: isLightBackground ? 'text-slate-900' : 'text-white text-shadow-md',
         isLightBackground
       };
     }
   } catch (e) {}
-  return { textColorClass: 'text-white drop-shadow-md', isLightBackground: false };
+  return { textColorClass: 'text-white text-shadow-md', isLightBackground: false };
 }
 
 interface WeatherWidgetProps {
