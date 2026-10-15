@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { ZipInput } from "./ZipInput";
-import { WeatherWidget } from "./WeatherWidget";
-import { ThemeEditorWidget } from "./ThemeEditorWidget";
-import "./index.css";
+import React, { useState, useEffect } from 'react';
+import { ZipInput } from './ZipInput';
+import { WeatherWidget } from './WeatherWidget';
+import { ThemeEditorWidget } from './ThemeEditorWidget';
+import './index.css';
 
 const getApiUrl = (path: string) => {
   if (window.location.hostname === 'inky.princess-donut.com') {
@@ -18,11 +18,12 @@ export function App() {
 
   // Simple routing for snapshotting
   const queryParams = new URLSearchParams(window.location.search);
-  const isSnapshot = window.location.pathname === "/snapshot";
-  const snapshotZip = queryParams.get("zip") || "94110";
-  const snapshotView = queryParams.get("view") || "current";
-  const snapshotGradient = queryParams.get("gradient");
-  const snapshotNoise = queryParams.get("noise") !== null ? parseFloat(queryParams.get("noise")!) : null;
+  const isSnapshot = window.location.pathname === '/snapshot';
+  const snapshotZip = queryParams.get('zip') || '94110';
+  const snapshotView = queryParams.get('view') || 'current';
+  const snapshotGradient = queryParams.get('gradient');
+  const snapshotNoise =
+    queryParams.get('noise') !== null ? parseFloat(queryParams.get('noise')!) : null;
 
   const [themeConfig, setThemeConfig] = useState<{
     gradient: string | null;
@@ -34,13 +35,19 @@ export function App() {
   }>({
     gradient: isSnapshot ? snapshotGradient : null,
     noise: isSnapshot && snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2,
-    shadowX: queryParams.get("shadowX") !== null ? parseInt(queryParams.get("shadowX")!) : undefined,
-    shadowY: queryParams.get("shadowY") !== null ? parseInt(queryParams.get("shadowY")!) : undefined,
-    shadowBlur: queryParams.get("shadowBlur") !== null ? parseInt(queryParams.get("shadowBlur")!) : undefined,
-    shadowOpacity: queryParams.get("shadowOpacity") !== null ? parseFloat(queryParams.get("shadowOpacity")!) : undefined,
+    shadowX:
+      queryParams.get('shadowX') !== null ? parseInt(queryParams.get('shadowX')!) : undefined,
+    shadowY:
+      queryParams.get('shadowY') !== null ? parseInt(queryParams.get('shadowY')!) : undefined,
+    shadowBlur:
+      queryParams.get('shadowBlur') !== null ? parseInt(queryParams.get('shadowBlur')!) : undefined,
+    shadowOpacity:
+      queryParams.get('shadowOpacity') !== null
+        ? parseFloat(queryParams.get('shadowOpacity')!)
+        : undefined,
   });
 
-  const fetchWeather = async (zip: string, view: string = "current") => {
+  const fetchWeather = async (zip: string, view: string = 'current') => {
     setLoading(true);
     setError(null);
     try {
@@ -67,10 +74,18 @@ export function App() {
         setThemeConfig({
           gradient: snapshotGradient,
           noise: snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2,
-          shadowX: queryParams.get("shadowX") !== null ? parseInt(queryParams.get("shadowX")!) : undefined,
-          shadowY: queryParams.get("shadowY") !== null ? parseInt(queryParams.get("shadowY")!) : undefined,
-          shadowBlur: queryParams.get("shadowBlur") !== null ? parseInt(queryParams.get("shadowBlur")!) : undefined,
-          shadowOpacity: queryParams.get("shadowOpacity") !== null ? parseFloat(queryParams.get("shadowOpacity")!) : undefined,
+          shadowX:
+            queryParams.get('shadowX') !== null ? parseInt(queryParams.get('shadowX')!) : undefined,
+          shadowY:
+            queryParams.get('shadowY') !== null ? parseInt(queryParams.get('shadowY')!) : undefined,
+          shadowBlur:
+            queryParams.get('shadowBlur') !== null
+              ? parseInt(queryParams.get('shadowBlur')!)
+              : undefined,
+          shadowOpacity:
+            queryParams.get('shadowOpacity') !== null
+              ? parseFloat(queryParams.get('shadowOpacity')!)
+              : undefined,
         });
         return;
       }
@@ -103,11 +118,11 @@ export function App() {
   if (isSnapshot) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
-        <WeatherWidget 
-          data={weatherData} 
-          loading={loading} 
-          error={error} 
-          themeOverride={themeConfig.gradient || undefined} 
+        <WeatherWidget
+          data={weatherData}
+          loading={loading}
+          error={error}
+          themeOverride={themeConfig.gradient || undefined}
           noiseLevel={themeConfig.noise}
           shadowX={themeConfig.shadowX}
           shadowY={themeConfig.shadowY}
@@ -130,11 +145,11 @@ export function App() {
         </header>
 
         <main className="flex flex-col items-center gap-12">
-          <WeatherWidget 
-            data={weatherData} 
-            loading={loading} 
-            error={error} 
-            themeOverride={themeConfig.gradient || undefined} 
+          <WeatherWidget
+            data={weatherData}
+            loading={loading}
+            error={error}
+            themeOverride={themeConfig.gradient || undefined}
             noiseLevel={themeConfig.noise}
             shadowX={themeConfig.shadowX}
             shadowY={themeConfig.shadowY}

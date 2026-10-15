@@ -7,10 +7,8 @@ import * as puppeteer from 'puppeteer';
 @Injectable()
 export class WeatherService {
   private readonly apiKey: string | undefined;
-  private readonly currentUrl =
-    'https://api.openweathermap.org/data/2.5/weather';
-  private readonly forecastUrl =
-    'https://api.openweathermap.org/data/2.5/forecast';
+  private readonly currentUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  private readonly forecastUrl = 'https://api.openweathermap.org/data/2.5/forecast';
   private readonly frontendUrl: string;
 
   constructor(
@@ -18,11 +16,9 @@ export class WeatherService {
     private readonly configService: ConfigService,
   ) {
     this.apiKey = this.configService.get<string>('OPENWEATHER_API_KEY');
-    const frontendPort =
-      this.configService.get<string>('FRONTEND_PORT') || '3010';
+    const frontendPort = this.configService.get<string>('FRONTEND_PORT') || '3010';
     this.frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') ||
-      `http://localhost:${frontendPort}`;
+      this.configService.get<string>('FRONTEND_URL') || `http://localhost:${frontendPort}`;
   }
 
   async captureImage(
@@ -71,9 +67,7 @@ export class WeatherService {
     if (!this.apiKey) {
       return {
         zip,
-        weather: [
-          { main: 'Cloudy (Mock)', description: 'broken clouds', icon: '04d' },
-        ],
+        weather: [{ main: 'Cloudy (Mock)', description: 'broken clouds', icon: '04d' }],
         main: {
           temp: 65,
           feels_like: 63,

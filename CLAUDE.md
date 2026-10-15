@@ -28,6 +28,12 @@ Default to using Bun instead of Node.js.
 
 Use `bun test` to run tests.
 
+## Linting, Formatting & Analysis
+
+- Use `bun run lint` for combined Oxlint and Biome lint checks
+- Use `bun run format` for Biome formatting
+- Use `bun run sonar` to run SonarQube scanner analysis
+
 ```ts#index.test.ts
 import { test, expect } from "bun:test";
 

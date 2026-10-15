@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import chroma from 'chroma-js';
 
 function useThemeContrast(themeOverride?: string) {
-  if (!themeOverride) return { textColorClass: 'text-white text-shadow-md', isLightBackground: false };
+  if (!themeOverride)
+    return { textColorClass: 'text-white text-shadow-md', isLightBackground: false };
   try {
     const hexColors = themeOverride.match(/#[A-Fa-f0-9]{6}\b/g);
     if (hexColors && hexColors.length > 0) {
@@ -12,10 +13,10 @@ function useThemeContrast(themeOverride?: string) {
       const isLightBackground = avgLum > 0.55; // Slightly higher threshold to prefer light text unless quite bright
       return {
         textColorClass: isLightBackground ? 'text-slate-900' : 'text-white text-shadow-md',
-        isLightBackground
+        isLightBackground,
       };
     }
-  } catch (e) { }
+  } catch (e) {}
   return { textColorClass: 'text-white text-shadow-md', isLightBackground: false };
 }
 
@@ -40,7 +41,7 @@ export function WeatherWidget({
   shadowX,
   shadowY,
   shadowBlur,
-  shadowOpacity
+  shadowOpacity,
 }: WeatherWidgetProps) {
   if (loading) {
     return (
@@ -64,10 +65,10 @@ export function WeatherWidget({
 
   if (view === 'today') {
     return (
-      <TodayView 
-        data={data} 
-        themeOverride={themeOverride} 
-        noiseLevel={noiseLevel} 
+      <TodayView
+        data={data}
+        themeOverride={themeOverride}
+        noiseLevel={noiseLevel}
         shadowX={shadowX}
         shadowY={shadowY}
         shadowBlur={shadowBlur}
@@ -77,10 +78,10 @@ export function WeatherWidget({
   }
   if (view === 'forecast') {
     return (
-      <ForecastView 
-        data={data} 
-        themeOverride={themeOverride} 
-        noiseLevel={noiseLevel} 
+      <ForecastView
+        data={data}
+        themeOverride={themeOverride}
+        noiseLevel={noiseLevel}
         shadowX={shadowX}
         shadowY={shadowY}
         shadowBlur={shadowBlur}
@@ -89,10 +90,10 @@ export function WeatherWidget({
     );
   }
   return (
-    <CurrentView 
-      data={data} 
-      themeOverride={themeOverride} 
-      noiseLevel={noiseLevel} 
+    <CurrentView
+      data={data}
+      themeOverride={themeOverride}
+      noiseLevel={noiseLevel}
       shadowX={shadowX}
       shadowY={shadowY}
       shadowBlur={shadowBlur}
@@ -108,7 +109,7 @@ function GrainOverlay({ opacity }: { opacity: number }) {
       className="absolute inset-0 pointer-events-none mix-blend-overlay z-0"
       style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        opacity: opacity
+        opacity: opacity,
       }}
     ></div>
   );
@@ -121,7 +122,7 @@ function CurrentView({
   shadowX,
   shadowY,
   shadowBlur,
-  shadowOpacity
+  shadowOpacity,
 }: {
   data: any;
   themeOverride?: string;
@@ -153,7 +154,7 @@ function CurrentView({
 
   const textShadowStyle = !isLightBackground
     ? {
-        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`
+        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`,
       }
     : {};
 
@@ -168,10 +169,16 @@ function CurrentView({
       <div className="flex justify-between items-start mb-8 relative z-10">
         <div>
           <div className="flex items-baseline gap-4">
-            <h1 className="text-4xl font-extrabold tracking-tight" style={textShadowStyle}>{data.name}</h1>
-            <span className="text-2xl font-semibold opacity-80" style={textShadowStyle}>{formattedTime}</span>
+            <h1 className="text-4xl font-extrabold tracking-tight" style={textShadowStyle}>
+              {data.name}
+            </h1>
+            <span className="text-2xl font-semibold opacity-80" style={textShadowStyle}>
+              {formattedTime}
+            </span>
           </div>
-          <p className="text-7xl font-black tracking-tighter mt-2" style={textShadowStyle}>{Math.round(data.main?.temp ?? data.temp)}°</p>
+          <p className="text-7xl font-black tracking-tighter mt-2" style={textShadowStyle}>
+            {Math.round(data.main?.temp ?? data.temp)}°
+          </p>
           <p className="text-xl opacity-90 font-bold capitalize mt-1" style={textShadowStyle}>
             {data.weather?.[0]?.description}
           </p>
@@ -192,10 +199,32 @@ function CurrentView({
       </div>
 
       <div className="grid grid-cols-4 gap-4 mt-12 relative z-10">
-        <StatModule label="FEELS LIKE" value={`${Math.round(data.main?.feels_like)}°`} subText="Similar to the actual temperature." isLightBackground={isLightBackground} />
-        <StatModule label="HUMIDITY" value={`${data.main?.humidity}%`} subText={`The dew point is ${Math.round(data.main?.temp - 5)}° right now.`} isLightBackground={isLightBackground} />
-        <StatModule label="WIND" value={`${Math.round(data.wind?.speed)}`} unit="m/s" subText="Moderate breeze expected today." isLightBackground={isLightBackground} />
-        <StatModule label="PRESSURE" value={data.main?.pressure} unit="hPa" subText="Steady in the last hour." isLightBackground={isLightBackground} />
+        <StatModule
+          label="FEELS LIKE"
+          value={`${Math.round(data.main?.feels_like)}°`}
+          subText="Similar to the actual temperature."
+          isLightBackground={isLightBackground}
+        />
+        <StatModule
+          label="HUMIDITY"
+          value={`${data.main?.humidity}%`}
+          subText={`The dew point is ${Math.round(data.main?.temp - 5)}° right now.`}
+          isLightBackground={isLightBackground}
+        />
+        <StatModule
+          label="WIND"
+          value={`${Math.round(data.wind?.speed)}`}
+          unit="m/s"
+          subText="Moderate breeze expected today."
+          isLightBackground={isLightBackground}
+        />
+        <StatModule
+          label="PRESSURE"
+          value={data.main?.pressure}
+          unit="hPa"
+          subText="Steady in the last hour."
+          isLightBackground={isLightBackground}
+        />
       </div>
 
       {data.message && <MockWarning message={data.message} />}
@@ -210,7 +239,7 @@ function TodayView({
   shadowX,
   shadowY,
   shadowBlur,
-  shadowOpacity
+  shadowOpacity,
 }: {
   data: any;
   themeOverride?: string;
@@ -235,7 +264,7 @@ function TodayView({
 
   const textShadowStyle = !isLightBackground
     ? {
-        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`
+        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`,
       }
     : {};
 
@@ -245,11 +274,16 @@ function TodayView({
       style={themeOverride ? { background: themeOverride } : {}}
     >
       <GrainOverlay opacity={noiseLevel} />
-      <h1 className="text-3xl font-extrabold mb-6 relative z-10" style={textShadowStyle}>{data.city?.name || 'Today'}'s Forecast</h1>
+      <h1 className="text-3xl font-extrabold mb-6 relative z-10" style={textShadowStyle}>
+        {data.city?.name || 'Today'}'s Forecast
+      </h1>
 
       <div className="grid grid-cols-8 gap-2 h-64 mb-6">
         {hourly.map((item: any, i: number) => (
-          <div key={i} className={`${itemBgClass} backdrop-blur-md rounded-2xl p-2 flex flex-col items-center justify-between border relative z-10 transition-all duration-300`}>
+          <div
+            key={i}
+            className={`${itemBgClass} backdrop-blur-md rounded-2xl p-2 flex flex-col items-center justify-between border relative z-10 transition-all duration-300`}
+          >
             <p className="text-[10px] font-black opacity-60">
               {new Date(item.dt * 1000).toLocaleTimeString([], { hour: 'numeric' })}
             </p>
@@ -260,7 +294,10 @@ function TodayView({
             />
             <p className="text-3xl font-black">{Math.round(item.main.temp)}°</p>
             <div className={`w-full ${progressTrackClass} h-1 rounded-full overflow-hidden mt-1`}>
-              <div className={`${progressBarClass} h-full`} style={{ width: `${item.pop * 100}%` }}></div>
+              <div
+                className={`${progressBarClass} h-full`}
+                style={{ width: `${item.pop * 100}%` }}
+              ></div>
             </div>
             <p className="text-[8px] font-bold opacity-60">{Math.round(item.pop * 100)}%</p>
           </div>
@@ -268,10 +305,31 @@ function TodayView({
       </div>
 
       <div className="grid grid-cols-4 gap-4 relative z-10">
-        <StatModule label="FEELS LIKE" value={`${Math.round(current?.main?.feels_like)}°`} subText="Morning average." isLightBackground={isLightBackground} />
-        <StatModule label="HUMIDITY" value={`${current?.main?.humidity}%`} subText="Next 24 hours." isLightBackground={isLightBackground} />
-        <StatModule label="WIND" value={`${Math.round(current?.wind?.speed)}`} unit="m/s" subText="Max expected." isLightBackground={isLightBackground} />
-        <StatModule label="PRECIP" value={`${Math.round(current?.pop * 100)}%`} subText="Peak chance." isLightBackground={isLightBackground} />
+        <StatModule
+          label="FEELS LIKE"
+          value={`${Math.round(current?.main?.feels_like)}°`}
+          subText="Morning average."
+          isLightBackground={isLightBackground}
+        />
+        <StatModule
+          label="HUMIDITY"
+          value={`${current?.main?.humidity}%`}
+          subText="Next 24 hours."
+          isLightBackground={isLightBackground}
+        />
+        <StatModule
+          label="WIND"
+          value={`${Math.round(current?.wind?.speed)}`}
+          unit="m/s"
+          subText="Max expected."
+          isLightBackground={isLightBackground}
+        />
+        <StatModule
+          label="PRECIP"
+          value={`${Math.round(current?.pop * 100)}%`}
+          subText="Peak chance."
+          isLightBackground={isLightBackground}
+        />
       </div>
 
       {data.message && <MockWarning message={data.message} />}
@@ -286,7 +344,7 @@ function ForecastView({
   shadowX,
   shadowY,
   shadowBlur,
-  shadowOpacity
+  shadowOpacity,
 }: {
   data: any;
   themeOverride?: string;
@@ -312,7 +370,7 @@ function ForecastView({
 
   const textShadowStyle = !isLightBackground
     ? {
-        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`
+        textShadow: `${shadowX !== undefined ? shadowX : 0}px ${shadowY !== undefined ? shadowY : 2}px ${shadowBlur !== undefined ? shadowBlur : 4}px rgba(0, 0, 0, ${shadowOpacity !== undefined ? shadowOpacity : 0.35})`,
       }
     : {};
 
@@ -322,14 +380,21 @@ function ForecastView({
       style={themeOverride ? { background: themeOverride } : {}}
     >
       <GrainOverlay opacity={noiseLevel} />
-      <h1 className="text-3xl font-extrabold mb-8 relative z-10" style={textShadowStyle}>{data.city?.name || '5-Day'} Forecast</h1>
+      <h1 className="text-3xl font-extrabold mb-8 relative z-10" style={textShadowStyle}>
+        {data.city?.name || '5-Day'} Forecast
+      </h1>
 
       <div className="space-y-3 relative z-10">
         {daily.map((day: any, i: number) => (
-          <div key={i} className={`${itemBgClass} backdrop-blur-md rounded-2xl p-4 flex items-center justify-between border transition-all duration-300`}>
+          <div
+            key={i}
+            className={`${itemBgClass} backdrop-blur-md rounded-2xl p-4 flex items-center justify-between border transition-all duration-300`}
+          >
             <div className="w-24">
               <p className="font-extrabold text-base">
-                {i === 0 ? 'Today' : new Date(day.dt * 1000).toLocaleDateString([], { weekday: 'long' })}
+                {i === 0
+                  ? 'Today'
+                  : new Date(day.dt * 1000).toLocaleDateString([], { weekday: 'long' })}
               </p>
             </div>
             <div className="flex items-center gap-4 flex-1 justify-center">
@@ -338,7 +403,9 @@ function ForecastView({
                 alt="icon"
                 className="w-10 h-10"
               />
-              <p className="text-sm font-bold opacity-80 w-32 capitalize">{day.weather[0].description}</p>
+              <p className="text-sm font-bold opacity-80 w-32 capitalize">
+                {day.weather[0].description}
+              </p>
             </div>
             <div className="flex items-center gap-8 w-48 justify-end font-bold">
               <div className="flex items-center gap-2">
@@ -346,7 +413,9 @@ function ForecastView({
                 <span>{Math.round(day.main.temp_min)}°</span>
               </div>
               <div className={`w-16 h-1.5 ${barTrackClass} rounded-full relative`}>
-                <div className={`absolute inset-y-0 left-1/4 right-1/4 ${barFillClass} rounded-full`}></div>
+                <div
+                  className={`absolute inset-y-0 left-1/4 right-1/4 ${barFillClass} rounded-full`}
+                ></div>
               </div>
               <div className="flex items-center gap-2">
                 <span>{Math.round(day.main.temp_max)}°</span>
@@ -377,7 +446,19 @@ function MockWarning({ message }: { message: string }) {
   );
 }
 
-function StatModule({ label, value, unit, subText, isLightBackground = false }: { label: string, value: any, unit?: string, subText: string, isLightBackground?: boolean }) {
+function StatModule({
+  label,
+  value,
+  unit,
+  subText,
+  isLightBackground = false,
+}: {
+  label: string;
+  value: any;
+  unit?: string;
+  subText: string;
+  isLightBackground?: boolean;
+}) {
   const bgClass = isLightBackground
     ? 'bg-black/5 border-black/10 text-slate-800'
     : 'bg-white/10 border-white/10 text-white';
@@ -385,8 +466,12 @@ function StatModule({ label, value, unit, subText, isLightBackground = false }: 
   const textOpacityClass = isLightBackground ? 'opacity-70' : 'opacity-80';
 
   return (
-    <div className={`${bgClass} backdrop-blur-md rounded-2xl p-4 border transition-all duration-300`}>
-      <p className={`text-[10px] font-black ${labelOpacityClass} tracking-wider mb-2 uppercase`}>{label}</p>
+    <div
+      className={`${bgClass} backdrop-blur-md rounded-2xl p-4 border transition-all duration-300`}
+    >
+      <p className={`text-[10px] font-black ${labelOpacityClass} tracking-wider mb-2 uppercase`}>
+        {label}
+      </p>
       <div className="flex items-baseline gap-1">
         <span className="text-2xl font-bold">{value}</span>
         {unit && <span className={`text-sm font-semibold ${textOpacityClass}`}>{unit}</span>}

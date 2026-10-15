@@ -6,6 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
   app.enableCors(); // Enable CORS for local development
-  await app.listen(process.env.PORT ?? 3011);
+  await app.listen(process.env.PORT ?? 3011).then(() => {
+    console.log(`Server is listening on port ${process.env.PORT ?? 3011}`);
+  });
 }
 bootstrap();

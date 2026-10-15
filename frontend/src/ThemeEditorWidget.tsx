@@ -51,7 +51,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
   const [lightness, setLightness] = useState<number>(1.0); // 0 to 2
   const [noiseLevel, setNoiseLevel] = useState<number>(0.2); // 0 to 1
   const [isAuto, setIsAuto] = useState(false);
-  
+
   // Theme persistence states
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
   const [themeName, setThemeName] = useState('');
@@ -63,50 +63,50 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
   const [shadowY, setShadowY] = useState<number>(2);
   const [shadowBlur, setShadowBlur] = useState<number>(4);
   const [shadowOpacity, setShadowOpacity] = useState<number>(0.35);
-  
+
   // Dragging state for the color wheel
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const colors = useMemo(() => {
     if (isAuto) return [];
-    
+
     // Apply saturation and lightness/value to base color
     const base = chroma(baseColor)
       .saturate(saturation - 1)
       .brighten(lightness - 1);
-      
+
     const [originalH, s, l] = base.hsl();
-    
+
     // Use custom hue if set, otherwise use original base color hue
-    const h = customHue !== null ? customHue : (isNaN(originalH) ? 0 : originalH);
-    
+    const h = customHue !== null ? customHue : isNaN(originalH) ? 0 : originalH;
+
     const c1 = chroma.hsl(h, s, l).hex();
     if (colorCount === 1) return [{ hex: c1, hue: h, offset: 0 }];
-    
+
     const c2Hue = (h + 150) % 360;
     const c2 = chroma.hsl(c2Hue, s, l).hex();
-    
+
     if (colorCount === 2) {
       return [
         { hex: c1, hue: h, offset: 0 },
-        { hex: c2, hue: c2Hue, offset: 150 }
+        { hex: c2, hue: c2Hue, offset: 150 },
       ];
     }
-    
+
     const c3Hue = (h + 210) % 360;
     const c3 = chroma.hsl(c3Hue, s, l).hex();
     return [
       { hex: c1, hue: h, offset: 0 },
       { hex: c2, hue: c2Hue, offset: 150 },
-      { hex: c3, hue: c3Hue, offset: 210 }
+      { hex: c3, hue: c3Hue, offset: 210 },
     ];
   }, [baseColor, customHue, colorCount, saturation, lightness, isAuto]);
 
   const gradientString = useMemo(() => {
     if (isAuto) return null;
     if (colors.length === 1) return colors[0].hex;
-    return `linear-gradient(135deg, ${colors.map(c => c.hex).join(', ')})`;
+    return `linear-gradient(135deg, ${colors.map((c) => c.hex).join(', ')})`;
   }, [colors, isAuto]);
 
   useEffect(() => {
@@ -123,29 +123,29 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
   // Handle color wheel dragging
   useEffect(() => {
     if (draggingIndex === null) return;
-    
+
     const offsets = [0, 150, 210];
     const offset = offsets[draggingIndex] || 0;
-    
+
     const handlePointerMove = (e: PointerEvent) => {
       if (!previewRef.current) return;
       const rect = previewRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      
+
       const angleRad = Math.atan2(e.clientY - centerY, e.clientX - centerX);
       let angleDeg = (angleRad * 180) / Math.PI;
       if (angleDeg < 0) angleDeg += 360;
-      
+
       // Calculate what the base hue should be based on the dragged circle's new angle
       const newBaseHue = (angleDeg - offset + 360) % 360;
       setCustomHue(newBaseHue);
     };
-    
+
     const handlePointerUp = () => {
       setDraggingIndex(null);
     };
-    
+
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
     return () => {
@@ -193,8 +193,8 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
       if (response.ok) {
         const newTheme = await response.json();
         // Update saved themes list, replacing if name matches (due to upsert)
-        setSavedThemes(prev => {
-          const filtered = prev.filter(t => t.name !== newTheme.name);
+        setSavedThemes((prev) => {
+          const filtered = prev.filter((t) => t.name !== newTheme.name);
           return [newTheme, ...filtered];
         });
         setSelectedThemeId(newTheme.id.toString());
@@ -212,7 +212,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
     setSelectedThemeId(id);
     if (!id) return;
 
-    const theme = savedThemes.find(t => t.id.toString() === id);
+    const theme = savedThemes.find((t) => t.id.toString() === id);
     if (theme) {
       if (theme.shadow_x !== undefined) setShadowX(theme.shadow_x);
       if (theme.shadow_y !== undefined) setShadowY(theme.shadow_y);
@@ -239,13 +239,13 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
     <div className="w-[400px] bg-[#E8F3F2] rounded-[32px] p-6 shadow-xl border border-white/50 text-[#4A5568] font-sans">
       {/* Top Icons */}
       <div className="flex justify-center gap-6 mb-6">
-        <button 
+        <button
           onClick={() => setIsAuto(true)}
           className={`p-2 rounded-xl transition-all ${isAuto ? 'bg-white/60 shadow-inner' : 'opacity-40 hover:opacity-100'}`}
         >
           <SparklesIcon />
         </button>
-        <button 
+        <button
           onClick={() => setIsAuto(false)}
           className={`p-2 rounded-xl transition-all ${!isAuto ? 'bg-white/60 shadow-inner' : 'opacity-40 hover:opacity-100'}`}
         >
@@ -257,28 +257,28 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
       </div>
 
       {/* Preview Area */}
-      <div 
+      <div
         ref={previewRef}
         className="relative h-64 rounded-2xl overflow-hidden mb-4 bg-white/40 shadow-inner border border-white/20 touch-none"
       >
         {/* Dot Texture Overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.08]" 
-          style={{ 
-            backgroundImage: 'radial-gradient(#000 0.5px, transparent 0.5px)', 
-            backgroundSize: '8px 8px' 
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: 'radial-gradient(#000 0.5px, transparent 0.5px)',
+            backgroundSize: '8px 8px',
           }}
         ></div>
 
         {/* Noise Overlay Preview */}
         {!isAuto && (
-           <div 
-             className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-20"
-             style={{ 
-               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-               opacity: noiseLevel * 0.5 // scaled for preview
-             }}
-           ></div>
+          <div
+            className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-20"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+              opacity: noiseLevel * 0.5, // scaled for preview
+            }}
+          ></div>
         )}
 
         {/* Floating circles representing colors */}
@@ -290,24 +290,24 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
               const y = Math.sin((c.hue * Math.PI) / 180) * radius;
 
               return (
-                <div 
+                <div
                   key={i}
                   onPointerDown={(e) => {
                     e.preventDefault();
                     setDraggingIndex(i);
                   }}
                   className={`absolute w-16 h-16 rounded-full shadow-lg border-4 border-white ease-out cursor-grab active:cursor-grabbing ${draggingIndex === i ? 'duration-75 scale-110' : 'duration-500'}`}
-                  style={{ 
+                  style={{
                     backgroundColor: c.hex,
                     transform: `translate(${x}px, ${y}px)`,
-                    zIndex: colors.length - i
+                    zIndex: colors.length - i,
                   }}
                 />
               );
             })}
           </div>
         )}
-        
+
         {isAuto && (
           <div className="absolute inset-0 flex items-center justify-center opacity-40 italic text-sm">
             Automatic Weather Theme
@@ -316,15 +316,15 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
 
         {/* Plus/Minus Buttons */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4 z-10">
-          <button 
-            onClick={() => setColorCount(prev => Math.max(1, prev - 1))}
+          <button
+            onClick={() => setColorCount((prev) => Math.max(1, prev - 1))}
             className="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center shadow-sm hover:bg-white active:scale-95 transition-all text-lg font-bold"
             disabled={isAuto}
           >
             -
           </button>
-          <button 
-            onClick={() => setColorCount(prev => Math.min(3, prev + 1))}
+          <button
+            onClick={() => setColorCount((prev) => Math.min(3, prev + 1))}
             className="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center shadow-sm hover:bg-white active:scale-95 transition-all text-lg font-bold"
             disabled={isAuto}
           >
@@ -335,13 +335,13 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
 
       {/* Swatches */}
       <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-        {PRESET_COLORS.map(color => {
+        {PRESET_COLORS.map((color) => {
           const previewColor = chroma(color)
             .saturate(saturation - 1)
             .brighten(lightness - 1)
             .hex();
           return (
-            <button 
+            <button
               key={color}
               onClick={() => {
                 setBaseColor(color);
@@ -364,7 +364,9 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
 
       {/* Text Shadow Controls */}
       <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-black/5">
-        <div className="text-[10px] font-bold opacity-40 uppercase tracking-tighter mb-1">Text Shadow Config</div>
+        <div className="text-[10px] font-bold opacity-40 uppercase tracking-tighter mb-1">
+          Text Shadow Config
+        </div>
         <Slider label="Offset X" value={shadowX} min={-10} max={10} onChange={setShadowX} />
         <Slider label="Offset Y" value={shadowY} min={-10} max={10} onChange={setShadowY} />
         <Slider label="Blur" value={shadowBlur} min={0} max={20} onChange={setShadowBlur} />
@@ -375,14 +377,16 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
       <div className="mt-6 pt-6 border-t border-black/10 flex flex-col gap-4">
         {/* Load Theme */}
         <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Load Saved Theme</label>
+          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">
+            Load Saved Theme
+          </label>
           <select
             value={selectedThemeId}
             onChange={handleSelectTheme}
             className="w-full h-10 px-3 bg-white/40 border border-white/20 rounded-xl text-sm focus:outline-none focus:bg-white/70 transition-all text-[#4A5568]"
           >
             <option value="">-- Select Saved Theme --</option>
-            {savedThemes.map(theme => (
+            {savedThemes.map((theme) => (
               <option key={theme.id} value={theme.id}>
                 {theme.name} ({theme.gradient ? 'Custom' : 'Auto'})
               </option>
@@ -392,7 +396,9 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
 
         {/* Save Theme */}
         <form onSubmit={handleSaveTheme} className="flex flex-col gap-1">
-          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Save Current Theme</label>
+          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">
+            Save Current Theme
+          </label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -415,12 +421,26 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
   );
 }
 
-function Slider({ label, value, min, max, onChange }: { label: string, value: number, min: number, max: number, onChange: (val: number) => void }) {
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (val: number) => void;
+}) {
   return (
     <div className="flex items-center gap-4">
-      <div className="w-16 text-[10px] font-bold opacity-40 uppercase tracking-tighter">{label}</div>
+      <div className="w-16 text-[10px] font-bold opacity-40 uppercase tracking-tighter">
+        {label}
+      </div>
       <div className="flex-1 h-8 bg-white/30 rounded-full relative overflow-hidden px-3 flex items-center group">
-        <input 
+        <input
           type="range"
           min={min}
           max={max}
@@ -447,25 +467,60 @@ function Slider({ label, value, min, max, onChange }: { label: string, value: nu
 // Simple Icons
 function SunIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
     </svg>
   );
 }
 
 function MoonIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
 }
 
 function SparklesIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/>
-      <path d="M5 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2zM19 17l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z"/>
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z" />
+      <path d="M5 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2zM19 17l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
     </svg>
   );
 }

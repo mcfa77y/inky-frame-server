@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "unicorn"],
+  "categories": {
+    "correctness": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "typescript/no-explicit-any": "off"
+  },
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**",
+    "bun.lock"
+  ]
+}

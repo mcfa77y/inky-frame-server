@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "bun --hot src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
-    "build": "bun run build.ts"
+    "build": "bun run build.ts",
+    "lint": "oxlint src && biome lint src",
+    "format": "biome format --write src"
   },
   "dependencies": {
     "@types/chroma-js": "^3.1.2",
@@ -19,7 +21,6 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint-plugin-antfu": "^3.2.3"
+    "@types/react-dom": "^19"
   }
 }

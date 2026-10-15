@@ -7,10 +7,7 @@ export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
   @Get()
-  async getWeather(
-    @Query('zip') zip?: string,
-    @Query('view') view: string = 'current',
-  ) {
+  async getWeather(@Query('zip') zip?: string, @Query('view') view: string = 'current') {
     return this.weatherService.getWeather(zip, view);
   }
 

@@ -38,20 +38,9 @@ describe('WeatherController', () => {
       end: endMock,
     } as unknown as Response;
 
-    await controller.getWeatherImage(
-      '94110',
-      mockRes,
-      'current',
-      'linear-gradient(...)',
-      '0.5',
-    );
+    await controller.getWeatherImage('94110', mockRes, 'current', 'linear-gradient(...)', '0.5');
 
-    expect(captureImageMock).toHaveBeenCalledWith(
-      '94110',
-      'current',
-      'linear-gradient(...)',
-      0.5,
-    );
+    expect(captureImageMock).toHaveBeenCalledWith('94110', 'current', 'linear-gradient(...)', 0.5);
 
     expect(endMock).toHaveBeenCalled();
   });
@@ -62,20 +51,9 @@ describe('WeatherController', () => {
       end: endMock,
     } as unknown as Response;
 
-    await controller.getWeatherImage(
-      '94110',
-      mockRes,
-      'current',
-      undefined,
-      undefined,
-    );
+    await controller.getWeatherImage('94110', mockRes, 'current', undefined, undefined);
 
-    expect(captureImageMock).toHaveBeenCalledWith(
-      '94110',
-      'current',
-      undefined,
-      undefined,
-    );
+    expect(captureImageMock).toHaveBeenCalledWith('94110', 'current', undefined, undefined);
 
     expect(endMock).toHaveBeenCalled();
   });

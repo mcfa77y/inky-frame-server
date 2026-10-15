@@ -20,7 +20,7 @@ export class ThemeService implements OnModuleInit, OnModuleDestroy {
   onModuleInit() {
     const dbPath = process.env.NODE_ENV === 'test' ? ':memory:' : 'themes.sqlite';
     this.db = new Database(dbPath, { create: true });
-    
+
     // Create the themes table if it doesn't exist
     this.db.run(`
       CREATE TABLE IF NOT EXISTS themes (
