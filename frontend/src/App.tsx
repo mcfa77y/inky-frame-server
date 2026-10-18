@@ -5,8 +5,8 @@ import { ThemeEditorWidget } from './ThemeEditorWidget';
 import './index.css';
 
 const getApiUrl = (path: string) => {
-  if (window.location.hostname === 'inky.princess-donut.com') {
-    return `https://inky-server.princess-donut.com${path}`;
+  if (window.location.hostname === 'inky-fe.princess-donut.com') {
+    return `https://inky-be.princess-donut.com${path}`;
   }
   return `http://localhost:3011${path}`;
 };
