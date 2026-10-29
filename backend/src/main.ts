@@ -10,4 +10,4 @@ async function bootstrap() {
     console.log(`Server is listening on port ${process.env.PORT ?? 3011}`);
   });
 }
-bootstrap();
+void bootstrap();

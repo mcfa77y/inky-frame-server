@@ -1,21 +1,43 @@
-# bun-react-tailwind-template
+# inky-frame-server
 
-To install dependencies:
+Weather dashboard for an 800x480 e-ink display. Bun monorepo: NestJS backend (`backend/`), React + Tailwind frontend (`frontend/`).
+
+## Development
 
 ```bash
 bun install
+bun run frontend:dev   # http://localhost:3010
+bun run backend:dev    # http://localhost:3011
 ```
 
-To start a development server:
+## Quality toolchain
 
 ```bash
-bun dev
+bun run lint        # oxlint + biome lint (must exit 0)
+bun run lint:fix    # oxlint --fix + biome check --write
+bun run format      # biome format --write (whole repo)
+bun run coverage    # backend tests + lcov, paths rewritten for Sonar
+bun run sonar       # push analysis to SonarQube (needs SONAR_TOKEN env)
 ```
 
-To run for production:
+Configs: `.oxlintrc.json`, `biome.json`, `sonar-project.properties`.
+
+## SonarQube (local)
 
 ```bash
-bun start
+docker compose -f docker-compose.sonar.yml up -d   # http://localhost:9000
 ```
 
-This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+One-time setup: log in as `admin/admin`, change the password, create a user token, then export it:
+
+```bash
+export SONAR_TOKEN=squ_...
+```
+
+Then:
+
+```bash
+bun run coverage && bun run sonar
+```
+
+Note: Elasticsearch refuses shards when host disk usage passes the 90% watermark — keep >43GB free on `/`.

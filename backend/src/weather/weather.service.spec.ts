@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { WeatherService } from './weather.service';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
+import { WeatherService } from './weather.service';
 
 describe('WeatherService', () => {
   let service: WeatherService;

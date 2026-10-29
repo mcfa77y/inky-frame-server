@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ZipInput } from './ZipInput';
-import { WeatherWidget } from './WeatherWidget';
+import { useEffect, useState } from 'react';
 import { ThemeEditorWidget } from './ThemeEditorWidget';
+import { WeatherWidget } from './WeatherWidget';
+import { ZipInput } from './ZipInput';
 import './index.css';
 
 const getApiUrl = (path: string) => {
@@ -22,8 +22,12 @@ export function App() {
   const snapshotZip = queryParams.get('zip') || '94110';
   const snapshotView = queryParams.get('view') || 'current';
   const snapshotGradient = queryParams.get('gradient');
-  const snapshotNoise =
-    queryParams.get('noise') !== null ? parseFloat(queryParams.get('noise')!) : null;
+  const rawNoise = queryParams.get('noise');
+  const snapshotNoise = rawNoise !== null ? Number.parseFloat(rawNoise) : null;
+  const rawShadowX = queryParams.get('shadowX');
+  const rawShadowY = queryParams.get('shadowY');
+  const rawShadowBlur = queryParams.get('shadowBlur');
+  const rawShadowOpacity = queryParams.get('shadowOpacity');
 
   const [themeConfig, setThemeConfig] = useState<{
     gradient: string | null;
@@ -34,17 +38,12 @@ export function App() {
     shadowOpacity?: number;
   }>({
     gradient: isSnapshot ? snapshotGradient : null,
-    noise: isSnapshot && snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2,
-    shadowX:
-      queryParams.get('shadowX') !== null ? parseInt(queryParams.get('shadowX')!) : undefined,
-    shadowY:
-      queryParams.get('shadowY') !== null ? parseInt(queryParams.get('shadowY')!) : undefined,
-    shadowBlur:
-      queryParams.get('shadowBlur') !== null ? parseInt(queryParams.get('shadowBlur')!) : undefined,
-    shadowOpacity:
-      queryParams.get('shadowOpacity') !== null
-        ? parseFloat(queryParams.get('shadowOpacity')!)
-        : undefined,
+    noise:
+      isSnapshot && snapshotNoise !== null && !Number.isNaN(snapshotNoise) ? snapshotNoise : 0.2,
+    shadowX: rawShadowX !== null ? Number.parseInt(rawShadowX, 10) : undefined,
+    shadowY: rawShadowY !== null ? Number.parseInt(rawShadowY, 10) : undefined,
+    shadowBlur: rawShadowBlur !== null ? Number.parseInt(rawShadowBlur, 10) : undefined,
+    shadowOpacity: rawShadowOpacity !== null ? Number.parseFloat(rawShadowOpacity) : undefined,
   });
 
   const fetchWeather = async (zip: string, view: string = 'current') => {
@@ -62,33 +61,19 @@ export function App() {
     }
   };
 
-  // Initial fetch
+  // Initial fetch (mount-only; URL params are static for the page lifetime)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only initial fetch
   useEffect(() => {
-    fetchWeather(isSnapshot ? snapshotZip : '94110', isSnapshot ? snapshotView : 'current');
+    // oxlint-disable-next-line react/set-state-in-effect
+    void fetchWeather(isSnapshot ? snapshotZip : '94110', isSnapshot ? snapshotView : 'current');
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load first saved theme for snapshots if no custom query overrides are provided
   useEffect(() => {
     if (isSnapshot) {
-      if (snapshotGradient !== null || snapshotNoise !== null) {
-        setThemeConfig({
-          gradient: snapshotGradient,
-          noise: snapshotNoise !== null && !isNaN(snapshotNoise) ? snapshotNoise : 0.2,
-          shadowX:
-            queryParams.get('shadowX') !== null ? parseInt(queryParams.get('shadowX')!) : undefined,
-          shadowY:
-            queryParams.get('shadowY') !== null ? parseInt(queryParams.get('shadowY')!) : undefined,
-          shadowBlur:
-            queryParams.get('shadowBlur') !== null
-              ? parseInt(queryParams.get('shadowBlur')!)
-              : undefined,
-          shadowOpacity:
-            queryParams.get('shadowOpacity') !== null
-              ? parseFloat(queryParams.get('shadowOpacity')!)
-              : undefined,
-        });
-        return;
-      }
+      // Snapshot URL overrides (gradient/noise/shadows) are already applied
+      // in the themeConfig useState initializer above.
 
       const loadFirstTheme = async () => {
         try {
@@ -111,9 +96,9 @@ export function App() {
           console.error('Failed to load first theme for snapshot:', err);
         }
       };
-      loadFirstTheme();
+      void loadFirstTheme();
     }
-  }, [isSnapshot, snapshotGradient, snapshotNoise]);
+  }, [isSnapshot]);
 
   if (isSnapshot) {
     return (

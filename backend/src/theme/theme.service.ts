@@ -1,5 +1,5 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Database } from 'bun:sqlite';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 
 export interface Theme {
   id?: number;
@@ -39,16 +39,16 @@ export class ThemeService implements OnModuleInit, OnModuleDestroy {
     // Migrations for existing databases
     try {
       this.db.run('ALTER TABLE themes ADD COLUMN shadow_x INTEGER DEFAULT 0');
-    } catch (e) {}
+    } catch {}
     try {
       this.db.run('ALTER TABLE themes ADD COLUMN shadow_y INTEGER DEFAULT 2');
-    } catch (e) {}
+    } catch {}
     try {
       this.db.run('ALTER TABLE themes ADD COLUMN shadow_blur INTEGER DEFAULT 4');
-    } catch (e) {}
+    } catch {}
     try {
       this.db.run('ALTER TABLE themes ADD COLUMN shadow_opacity REAL DEFAULT 0.35');
-    } catch (e) {}
+    } catch {}
   }
 
   onModuleDestroy() {

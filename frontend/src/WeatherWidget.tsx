@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import chroma from 'chroma-js';
+import { useEffect, useState } from 'react';
 
 function useThemeContrast(themeOverride?: string) {
   if (!themeOverride)
@@ -16,7 +16,7 @@ function useThemeContrast(themeOverride?: string) {
         isLightBackground,
       };
     }
-  } catch (e) {}
+  } catch {}
   return { textColorClass: 'text-white text-shadow-md', isLightBackground: false };
 }
 
@@ -132,7 +132,7 @@ function CurrentView({
   shadowBlur?: number;
   shadowOpacity?: number;
 }) {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date());
   const { textColorClass, isLightBackground } = useThemeContrast(themeOverride);
 
   useEffect(() => {
@@ -279,9 +279,9 @@ function TodayView({
       </h1>
 
       <div className="grid grid-cols-8 gap-2 h-64 mb-6">
-        {hourly.map((item: any, i: number) => (
+        {hourly.map((item: any) => (
           <div
-            key={i}
+            key={item.dt}
             className={`${itemBgClass} backdrop-blur-md rounded-2xl p-2 flex flex-col items-center justify-between border relative z-10 transition-all duration-300`}
           >
             <p className="text-[10px] font-black opacity-60">
@@ -387,7 +387,7 @@ function ForecastView({
       <div className="space-y-3 relative z-10">
         {daily.map((day: any, i: number) => (
           <div
-            key={i}
+            key={day.dt}
             className={`${itemBgClass} backdrop-blur-md rounded-2xl p-4 flex items-center justify-between border transition-all duration-300`}
           >
             <div className="w-24">

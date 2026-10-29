@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { firstValueFrom } from 'rxjs';
 import * as puppeteer from 'puppeteer';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class WeatherService {
@@ -16,6 +16,7 @@ export class WeatherService {
     private readonly configService: ConfigService,
   ) {
     this.apiKey = this.configService.get<string>('OPENWEATHER_API_KEY');
+    console.log(`[WeatherService] : ${JSON.stringify({ apiKey: this.apiKey }, null, 2)}`);
     const frontendPort = this.configService.get<string>('FRONTEND_PORT') || '3010';
     this.frontendUrl =
       this.configService.get<string>('FRONTEND_URL') || `http://localhost:${frontendPort}`;

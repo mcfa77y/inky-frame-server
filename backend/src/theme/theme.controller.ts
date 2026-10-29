@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { ThemeService, Theme } from './theme.service';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Theme, ThemeService } from './theme.service';
 
 class CreateThemeDto {
   name: string;

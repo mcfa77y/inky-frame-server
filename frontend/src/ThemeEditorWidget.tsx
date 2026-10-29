@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
 import chroma from 'chroma-js';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const getApiUrl = (path: string) => {
   if (window.location.hostname === 'inky.princess-donut.com') {
@@ -79,7 +79,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
     const [originalH, s, l] = base.hsl();
 
     // Use custom hue if set, otherwise use original base color hue
-    const h = customHue !== null ? customHue : isNaN(originalH) ? 0 : originalH;
+    const h = customHue !== null ? customHue : Number.isNaN(originalH) ? 0 : originalH;
 
     const c1 = chroma.hsl(h, s, l).hex();
     if (colorCount === 1) return [{ hex: c1, hue: h, offset: 0 }];
@@ -167,7 +167,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
         console.error('Failed to fetch themes:', err);
       }
     };
-    fetchThemes();
+    void fetchThemes();
   }, []);
 
   const handleSaveTheme = async (e: React.FormEvent) => {
@@ -240,18 +240,20 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
       {/* Top Icons */}
       <div className="flex justify-center gap-6 mb-6">
         <button
+          type="button"
           onClick={() => setIsAuto(true)}
           className={`p-2 rounded-xl transition-all ${isAuto ? 'bg-white/60 shadow-inner' : 'opacity-40 hover:opacity-100'}`}
         >
           <SparklesIcon />
         </button>
         <button
+          type="button"
           onClick={() => setIsAuto(false)}
           className={`p-2 rounded-xl transition-all ${!isAuto ? 'bg-white/60 shadow-inner' : 'opacity-40 hover:opacity-100'}`}
         >
           <SunIcon />
         </button>
-        <button className="p-2 rounded-xl opacity-20 cursor-not-allowed">
+        <button type="button" className="p-2 rounded-xl opacity-20 cursor-not-allowed">
           <MoonIcon />
         </button>
       </div>
@@ -291,7 +293,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
 
               return (
                 <div
-                  key={i}
+                  key={`${c.hue}-${c.hex}`}
                   onPointerDown={(e) => {
                     e.preventDefault();
                     setDraggingIndex(i);
@@ -317,6 +319,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
         {/* Plus/Minus Buttons */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4 z-10">
           <button
+            type="button"
             onClick={() => setColorCount((prev) => Math.max(1, prev - 1))}
             className="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center shadow-sm hover:bg-white active:scale-95 transition-all text-lg font-bold"
             disabled={isAuto}
@@ -324,6 +327,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
             -
           </button>
           <button
+            type="button"
             onClick={() => setColorCount((prev) => Math.min(3, prev + 1))}
             className="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center shadow-sm hover:bg-white active:scale-95 transition-all text-lg font-bold"
             disabled={isAuto}
@@ -342,6 +346,7 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
             .hex();
           return (
             <button
+              type="button"
               key={color}
               onClick={() => {
                 setBaseColor(color);
@@ -377,10 +382,14 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
       <div className="mt-6 pt-6 border-t border-black/10 flex flex-col gap-4">
         {/* Load Theme */}
         <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">
+          <label
+            htmlFor="load-theme-select"
+            className="text-[10px] font-bold opacity-40 uppercase tracking-tighter"
+          >
             Load Saved Theme
           </label>
           <select
+            id="load-theme-select"
             value={selectedThemeId}
             onChange={handleSelectTheme}
             className="w-full h-10 px-3 bg-white/40 border border-white/20 rounded-xl text-sm focus:outline-none focus:bg-white/70 transition-all text-[#4A5568]"
@@ -396,11 +405,15 @@ export function ThemeEditorWidget({ onThemeChange }: ThemeEditorWidgetProps) {
 
         {/* Save Theme */}
         <form onSubmit={handleSaveTheme} className="flex flex-col gap-1">
-          <label className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">
+          <label
+            htmlFor="save-theme-name"
+            className="text-[10px] font-bold opacity-40 uppercase tracking-tighter"
+          >
             Save Current Theme
           </label>
           <div className="flex gap-2">
             <input
+              id="save-theme-name"
               type="text"
               placeholder="e.g. Lavender Dusk"
               value={themeName}
@@ -446,7 +459,7 @@ function Slider({
           max={max}
           step="0.01"
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
+          onChange={(e) => onChange(Number.parseFloat(e.target.value))}
           className="w-full appearance-none bg-transparent cursor-pointer relative z-10 
             [&::-webkit-slider-runnable-track]:h-full
             [&::-webkit-slider-thumb]:appearance-none
@@ -477,6 +490,7 @@ function SunIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
+      <title>Sun</title>
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
       <line x1="12" y1="21" x2="12" y2="23" />
@@ -502,6 +516,7 @@ function MoonIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
+      <title>Moon</title>
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
@@ -519,6 +534,7 @@ function SparklesIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
+      <title>Sparkles</title>
       <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z" />
       <path d="M5 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2zM19 17l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
     </svg>

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, Header } from '@nestjs/common';
+import { Controller, Get, Header, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { WeatherService } from './weather.service';
 
@@ -24,12 +24,12 @@ export class WeatherController {
     console.log(`view: ${view}`);
     console.log(`gradient: ${gradient}`);
     console.log(`noise: ${noise}`);
-    const noiseNum = noise !== undefined ? parseFloat(noise) : undefined;
+    const noiseNum = noise !== undefined ? Number.parseFloat(noise) : undefined;
     const buffer = await this.weatherService.captureImage(
       zip,
       view,
       gradient,
-      isNaN(noiseNum as number) ? undefined : noiseNum,
+      Number.isNaN(noiseNum as number) ? undefined : noiseNum,
     );
     res.end(buffer);
   }

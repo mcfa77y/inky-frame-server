@@ -11,6 +11,8 @@
   },
   "ignorePatterns": [
     "dist/**",
+    "**/dist/**",
+    "**/coverage/**",
     "node_modules/**",
     "bun.lock"
   ]
